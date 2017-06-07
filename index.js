@@ -7,6 +7,8 @@ var libPath = pathUtil.getDirectory(require.resolve('elkmon')) + "/lib/";
 var LogicalState = require(libPath + 'enums.js').LogicalState;
 var ArmMode = require(libPath + 'enums.js').ArmMode
 var ElkPanel = require('./lib/ElkPanel.js');
+var ElkContact = require('./lib/ElkContact.js');
+var ElkMotion = require('./lib/ElkMotion.js');
 
 module.exports = function (homebridge) {
 
@@ -33,11 +35,13 @@ function ElkPlatform(log, config, api) {
     this.elkPort = this.config.elkPort;
     this.area = this.config.area;
     this.keypadCode = this.config.keypadCode;
+    this.zoneTypes = this.config.zoneTypes;
 
     this.api = api;
     this._elkAccessories = [];
     this.log = log;
     this.elk = new Elk(this.elkPort, this.elkAddress, { secure: false });
+    this.zoneAccessories = {};
 
 }
 
@@ -70,13 +74,35 @@ ElkPlatform.prototype.accessories = function (callback) {
                             var zone = response.zones[i];
                             if ('Unconfigured' != zone.logicalState) {
                                 var td = this.zoneTexts[zone.id];
-                                this.log.debug("Zone " + td + " id " + zone.id + " " + zone.logicalState);
+                                this.log.debug("Zone " + td + " id " + zone.id + " " + zone.physicalState);
+                                var zoneType = this.zoneTypes[zone.id];
+                                var newZone = null;
+                                switch (zoneType) {
+                                    case 'contact':
+                                        newZone = new ElkContact(Homebridge, this.log, zone.id, td);
+                                        break;
+                                    case 'motion':
+                                        newZone = new ElkMotion(Homebridge, this.log, zone.id, td);
+                                        break;
+                                }
+                                if (newZone) {
+                                    this._elkAccessories.push(newZone);
+                                    this.zoneAccessories[zone.id] = newZone;
+                                }
                             }
                         }
                         callback(this._elkAccessories);
                         this.elk.requestArmingStatus();
                     })
             })
+    });
+
+    this.elk.on('ZC', (msg) => {
+        this.log.debug(msg);
+        var accessory = this.zoneAccessories[msg.id];
+        if ('undefined' != typeof accessory) {
+            accessory.setStatusFromMessage(msg);
+        }
     });
 
 
