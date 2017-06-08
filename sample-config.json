@@ -1,0 +1,32 @@
+{
+    "bridge": {
+        "name": "HomebridgeM1",
+        "username": "44:25:3D:E3:CE:33",
+        "port": 51826,
+        "pin": "031-45-154"
+    },
+    "description": "M1 configuration",
+    "platforms": [
+        {
+            "platform": "ElkM1",
+            "name": "ElkM1",
+            "elkAddress": "x.x.x.x",
+            "elkPort": "2101",
+            "area": "1",
+            "keypadCode": "1234",
+            "zoneTypes": {
+                "1": "contact",
+                "2": "contact",
+                "3": "contact",
+                "4": "contact",
+                "5": "motion",
+                "6": "motion",
+                "7": "motion",
+                "8": "motion",
+                "9": "motion",
+                "10": "motion",
+                "16": "smoke"
+            }
+        }
+    ]
+}
