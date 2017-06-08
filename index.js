@@ -9,6 +9,10 @@ var ArmMode = require(libPath + 'enums.js').ArmMode
 var ElkPanel = require('./lib/ElkPanel.js');
 var ElkContact = require('./lib/ElkContact.js');
 var ElkMotion = require('./lib/ElkMotion.js');
+var ElkSmoke = require('./lib/ElkSmoke.js');
+var ElkOutput = require('./lib/ElkOutput.js');
+var ElkTask = require('./lib/ElkTask.js');
+
 
 module.exports = function (homebridge) {
 
@@ -63,13 +67,35 @@ ElkPlatform.prototype.accessories = function (callback) {
 
                         return this.elk.requestTextDescriptionAll(0)
                     })
-                    .then((zoneText) => {
+                    .then((zoneText) => {                        
                         this.zoneTexts = {};
-                        for (var i = 0; i < zoneText.length; i++) {
+                         for (var i = 0; i < zoneText.length; i++) {
                             var td = zoneText[i];
                             this.zoneTexts[td.id] = td.description;
                         }
-                        this.log.debug(this.zoneTexts);
+                        return this.elk.requestTextDescriptionAll(5);
+                    })
+                    .then((taskText) => {
+                        this.tasks = {};
+                         for (var i = 0; i < taskText.length; i++) {
+                            var td = taskText[i];
+                            var task = new ElkTask(Homebridge,this.log, this.elk,td.id,td.description);
+                            this.tasks[td.id] = task;
+                            this._elkAccessories.push(task);
+                        }
+                        return this.elk.requestTextDescriptionAll(4);
+                    })
+                     .then((outputText) => {
+                        this.outputs={};
+                         for (var i = 0; i < outputText.length; i++) {
+                            var td = outputText[i];
+                            var output = new ElkOutput(Homebridge,this.log, this.elk,td.id,td.description);
+                            this.outputs[td.id] = output;
+                            this._elkAccessories.push(output);
+                        }
+                    })
+                    .then(() => {
+
                         for (var i = 0; i < response.zones.length; i++) {
                             var zone = response.zones[i];
                             if ('Unconfigured' != zone.logicalState) {
@@ -84,6 +110,9 @@ ElkPlatform.prototype.accessories = function (callback) {
                                     case 'motion':
                                         newZone = new ElkMotion(Homebridge, this.log, zone.id, td);
                                         break;
+                                    case 'smoke':
+                                        newZone = new ElkSmoke(Homebridge, this.log, zone.id, td);
+                                        break;
                                 }
                                 if (newZone) {
                                     this._elkAccessories.push(newZone);
@@ -93,6 +122,7 @@ ElkPlatform.prototype.accessories = function (callback) {
                         }
                         callback(this._elkAccessories);
                         this.elk.requestArmingStatus();
+                      //  this.elk.requestOutputStatusReport();
                     })
             })
     });
@@ -103,6 +133,19 @@ ElkPlatform.prototype.accessories = function (callback) {
         if ('undefined' != typeof accessory) {
             accessory.setStatusFromMessage(msg);
         }
+    });
+
+    this.elk.on('CS', (msg) => {
+        this.log.debug("CS:");
+        this.log.debug(msg);
+    });
+
+     this.elk.on('CC', (msg) => {
+        this.log.debug(msg);
+       var output = this.outputs[msg.id];
+       if ('undefined' != typeof output) {
+           output.setStatusFromMessage(msg);
+       }
     });
 
 
