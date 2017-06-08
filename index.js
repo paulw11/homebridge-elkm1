@@ -35,12 +35,29 @@ function ElkPlatform(log, config, api) {
     this.elkPort = this.config.elkPort;
     this.area = this.config.area;
     this.keypadCode = this.config.keypadCode;
+    this.secure = this.config.secure;
+    this.userName = this.config.userName;
+    this.password = this.config.password;
     this.zoneTypes = this.config.zoneTypes;
 
     this.api = api;
     this._elkAccessories = [];
     this.log = log;
-    this.elk = new Elk(this.elkPort, this.elkAddress, { secure: false });
+    if (this.secure) {
+        this.log.debug("Secure connection");
+        this.elk = new Elk(this.elkPort, this.elkAddress,
+            {
+                secure: true,
+                userName: this.userName,
+                password: this.password,
+                keypadCode: this.keypadCode,
+                rejectUnauthorized: false,
+                secureProtocol: 'TLS1_method'
+            });
+    } else {
+        this.log.warn("Connection is not secure");
+        this.elk = new Elk(this.elkPort, this.elkAddress, { secure: false });
+    }
     this.zoneAccessories = {};
 
 }
@@ -51,7 +68,7 @@ ElkPlatform.prototype.accessories = function (callback) {
     this.elk.connect();
 
     this.elk.on('connected', () => {
-        this.log.debug('***Connected***');
+        this.log.info('***Connected***');
         this.elk.requestZoneStatusReport()
             .then((response) => {
 
@@ -63,9 +80,9 @@ ElkPlatform.prototype.accessories = function (callback) {
 
                         return this.elk.requestTextDescriptionAll(0)
                     })
-                    .then((zoneText) => {                        
+                    .then((zoneText) => {
                         this.zoneTexts = {};
-                         for (var i = 0; i < zoneText.length; i++) {
+                        for (var i = 0; i < zoneText.length; i++) {
                             var td = zoneText[i];
                             this.zoneTexts[td.id] = td.description;
                         }
@@ -73,19 +90,19 @@ ElkPlatform.prototype.accessories = function (callback) {
                     })
                     .then((taskText) => {
                         this.tasks = {};
-                         for (var i = 0; i < taskText.length; i++) {
+                        for (var i = 0; i < taskText.length; i++) {
                             var td = taskText[i];
-                            var task = new ElkTask(Homebridge,this.log, this.elk,td.id,td.description);
+                            var task = new ElkTask(Homebridge, this.log, this.elk, td.id, td.description);
                             this.tasks[td.id] = task;
                             this._elkAccessories.push(task);
                         }
                         return this.elk.requestTextDescriptionAll(4);
                     })
-                     .then((outputText) => {
-                        this.outputs={};
-                         for (var i = 0; i < outputText.length; i++) {
+                    .then((outputText) => {
+                        this.outputs = {};
+                        for (var i = 0; i < outputText.length; i++) {
                             var td = outputText[i];
-                            var output = new ElkOutput(Homebridge,this.log, this.elk,td.id,td.description);
+                            var output = new ElkOutput(Homebridge, this.log, this.elk, td.id, td.description);
                             this.outputs[td.id] = output;
                             this._elkAccessories.push(output);
                         }
@@ -118,7 +135,7 @@ ElkPlatform.prototype.accessories = function (callback) {
                         }
                         callback(this._elkAccessories);
                         this.elk.requestArmingStatus();
-                      //  this.elk.requestOutputStatusReport();
+                        //  this.elk.requestOutputStatusReport();
                     })
             })
     });
@@ -136,14 +153,12 @@ ElkPlatform.prototype.accessories = function (callback) {
         this.log.debug(msg);
     });
 
-     this.elk.on('CC', (msg) => {
+    this.elk.on('CC', (msg) => {
         this.log.debug(msg);
-       var output = this.outputs[msg.id];
-       if ('undefined' != typeof output) {
-           output.setStatusFromMessage(msg);
-       }
+        var output = this.outputs[msg.id];
+        if ('undefined' != typeof output) {
+            output.setStatusFromMessage(msg);
+        }
     });
-
-
 
 };
