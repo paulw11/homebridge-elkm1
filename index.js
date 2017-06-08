@@ -2,10 +2,6 @@
 
 var Accessory, Service, Characteristic, UUIDGen, Elk, Homebridge, ElkPanel;
 
-var pathUtil = require('path-util');
-var libPath = pathUtil.getDirectory(require.resolve('elkmon')) + "/lib/";
-var LogicalState = require(libPath + 'enums.js').LogicalState;
-var ArmMode = require(libPath + 'enums.js').ArmMode
 var ElkPanel = require('./lib/ElkPanel.js');
 var ElkContact = require('./lib/ElkContact.js');
 var ElkMotion = require('./lib/ElkMotion.js');
