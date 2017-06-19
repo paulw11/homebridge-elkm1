@@ -26,7 +26,14 @@
                 "9": "motion",
                 "10": "motion",
                 "16": "smoke"
+            },
+            "garageDoors":[
+            {
+                "stateZone":"2",
+                "openOutput":"11",
+                "closeOutput":"11"
             }
+            ]
         }
     ]
 }

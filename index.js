@@ -8,6 +8,7 @@ var ElkMotion = require('./lib/ElkMotion.js');
 var ElkSmoke = require('./lib/ElkSmoke.js');
 var ElkOutput = require('./lib/ElkOutput.js');
 var ElkTask = require('./lib/ElkTask.js');
+var ElkGarageDoor = require('./lib/ElkGarageDoor.js');
 
 
 module.exports = function (homebridge) {
@@ -59,7 +60,13 @@ function ElkPlatform(log, config, api) {
         this.elk = new Elk(this.elkPort, this.elkAddress, { secure: false });
     }
     this.zoneAccessories = {};
-
+    this.garageDoors = {};
+    if (this.config.garageDoors) {
+        var gd = this.config.garageDoors;
+        for (var i = 0; i < gd.length; i++) {
+            this.garageDoors[gd[i].stateZone] = gd[i];
+        }
+    }
 }
 
 ElkPlatform.prototype.accessories = function (callback) {
@@ -126,6 +133,11 @@ ElkPlatform.prototype.accessories = function (callback) {
                                     case 'smoke':
                                         newZone = new ElkSmoke(Homebridge, this.log, zone.id, td);
                                         break;
+                                    case 'garage':
+                                        if (this.garageDoors['' + zone.id]) {
+                                            var gd = this.garageDoors[zone.id];
+                                            newZone = new ElkGarageDoor(Homebridge, this.log, this.elk, gd);
+                                        }
                                 }
                                 if (newZone) {
                                     this._elkAccessories.push(newZone);
