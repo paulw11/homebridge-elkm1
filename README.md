@@ -34,7 +34,7 @@ homebridge-elkm1 exposes a *platform* to homebridge, so you need to add it to th
             "keypadCode": "1234",
             "zoneTypes": {
                 "1": "contact",
-                "2": "contact",
+                "2": "garage",
                 "3": "contact",
                 "4": "contact",
                 "5": "motion",
@@ -44,7 +44,15 @@ homebridge-elkm1 exposes a *platform* to homebridge, so you need to add it to th
                 "9": "motion",
                 "10": "motion",
                 "16": "smoke"
+            },
+            "garageDoors":[
+            {
+                "stateZone":"2",
+                "openOutput":"11",
+                "closeOutput":"11",
+                "name":"Garage door"
             }
+            ]
         }
     ]
 ```
@@ -55,11 +63,11 @@ homebridge-elkm1 exposes a *platform* to homebridge, so you need to add it to th
 | elkPort | The insecure port for your M1XEP; 2101 is the default if you haven't changed it |
 | area | The area you want to control; typically 1 |
 | keypadCode | A valid keypad code that homebridge-elkm1 can use to arm & disarm your area |
-| zoneTypes | A dictionary of zone numbers and their types.  Valid types are: *contact*, *motion* or *smoke* |
+| zoneTypes | A dictionary of zone numbers and their types.  Valid types are: *contact*, *motion*, *smoke* or *garage* |
+| garageDoors | An array of garage door objects.  Each garage door has a zone that shows the state of the door (This must be a *garage* zone type), a name, and two outputs; one that is pulsed to open the door and one that is pulsed to close it.  For many openers this will be the same output
 
-You should now be able to start homebridge and see your m1.
+You should now be able to start homebridge and see your M1.
 
 ## TODO
 
 * Secure connections are not currently supported
-* Allow for the definition of a *Garage Door* accessory which is a combination of a zone and an output
