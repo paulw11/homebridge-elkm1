@@ -172,5 +172,9 @@ ElkPlatform.prototype.accessories = function (callback) {
             output.setStatusFromMessage(msg);
         }
     });
+   
+    this.elk.on('error', (code) => {
+	this.log.error("Error code received from elkmon: "+code);
+    });
 
 };
