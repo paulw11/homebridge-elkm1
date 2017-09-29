@@ -19,6 +19,9 @@ Most configuration items are discovered automatically, however you need to indic
 2. Install homebridge-elkm1 - `sudo npm install -g --unsafe-perm homebridge-elkm1`
 3. Update your configuration file.  There is a sample file in this repository.
 
+**Note** Your node.js must be version 6 or later in order for this plugin to work.  If you get a syntax error on startup, you 
+probably need to upgrade your Node.js
+
 ## Configuration
 
 homebridge-elkm1 exposes a *platform* to homebridge, so you need to add it to the `platforms` section of your config.json file.
