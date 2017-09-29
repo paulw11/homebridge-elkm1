@@ -22,14 +22,7 @@
                 "5": "motion",
                 "6": "motion",
                 "7": "motion",
-                "8": "motion",
-                "9": "motion",
-                "10": "motion",
-                "16": "smoke"
-            },
-            "garageDoors":[
-            {
-                "stateZone":"2",
+                "8": "motion",gggg43
                 "openOutput":"11",
                 "closeOutput":"11",
                 "name":"Garage door"
