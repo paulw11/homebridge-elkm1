@@ -1,6 +1,9 @@
 Changelog
 =========
 
+1.1.2
+-----
+Use a logical state other than 'Normal' to indicate an alarm
 
 1.1.1
 -----
