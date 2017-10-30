@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.1.4
+-----
+Fix issue with unnamed objects - Fix #5
+
 1.1.2
 -----
 Fix issue with alarm being disarmed as soon as it was triggered
