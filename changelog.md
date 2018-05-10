@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.1.5
+-----
+Fix issue with undefined zones in M1 causing initialisation failure when defined in homebridge config
+
 1.1.4
 -----
 Fix issue with unnamed objects - Fix #5
