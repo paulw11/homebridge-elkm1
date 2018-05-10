@@ -123,6 +123,8 @@ ElkPlatform.prototype.accessories = function (callback) {
                                 this.log.debug("Zone " + td + " id " + zone.id + " " + zone.physicalState);
                                 var zoneType = this.zoneTypes[zone.id];
                                 var newZone = null;
+                                if (typeof zoneType !== "undefined") {
+                                    if (typeof td !== "undefined"){
                                 switch (zoneType) {
                                     case 'contact':
                                         newZone = new ElkContact(Homebridge, this.log, zone.id, td);
@@ -143,6 +145,10 @@ ElkPlatform.prototype.accessories = function (callback) {
                                     this._elkAccessories.push(newZone);
                                     this.zoneAccessories[zone.id] = newZone;
                                 }
+                            } else {
+                                this.log.warn("Zone #"+zone.id+" added to configuration but has no description in M1");
+                            }
+                            }
                             }
                         }
                         callback(this._elkAccessories);
