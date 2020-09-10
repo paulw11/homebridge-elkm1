@@ -1,5 +1,9 @@
 Changelog
 =========
+1.1.8
+-----
+Fix error reporting
+
 1.1.7
 -----
 Add catch statement to catch errors with fetching M1 config
