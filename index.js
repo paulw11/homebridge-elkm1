@@ -148,9 +148,10 @@ ElkPlatform.prototype.accessories = function (callback) {
                         }
                         callback(this._elkAccessories);
                         this.elk.requestArmingStatus();
-                        //  this.elk.requestOutputStatusReport();
                     }) .catch((error) => {
-                        assert.isNotOk(error,'Error retrieving data from M1 panel');
+                        this.log.error('Error retrieving data from M1 panel');
+                        this.log.error(error);
+                        callback();
                       });
             })
     });
