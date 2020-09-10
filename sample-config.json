@@ -22,11 +22,15 @@
                 "5": "motion",
                 "6": "motion",
                 "7": "motion",
-                "8": "motion",gggg43
-                "openOutput":"11",
-                "closeOutput":"11",
-                "name":"Garage door"
-            }
+                "8": "motion"
+            },
+            "garageDoors": [
+                {
+                    "stateZone": "2",
+                    "openOutput": "11",
+                    "closeOutput": "11",
+                    "name": "Garage Door"
+                }
             ]
         }
     ]
