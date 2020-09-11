@@ -1,5 +1,9 @@
 Changelog
 =========
+1.1.9
+-----
+Fix crash on discovery fail
+
 1.1.8
 -----
 Fix error reporting

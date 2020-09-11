@@ -151,7 +151,7 @@ ElkPlatform.prototype.accessories = function (callback) {
                     }) .catch((error) => {
                         this.log.error('Error retrieving data from M1 panel');
                         this.log.error(error);
-                        callback();
+                        callback([]);
                       });
             })
     });
