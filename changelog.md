@@ -1,5 +1,9 @@
 Changelog
 =========
+1.1.10
+------
+Additional debug logging
+
 1.1.9
 -----
 Fix crash on discovery fail

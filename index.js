@@ -78,13 +78,13 @@ ElkPlatform.prototype.accessories = function (callback) {
         this.log.info('***Connected***');
         this.elk.requestZoneStatusReport()
             .then((response) => {
-
+                this.log.debug("Requesting area description");
                 return this.elk.requestTextDescription(this.area, '1')
                     .then((areaText) => {
-                        this.log.debug(areaText);
+                        this.log.debug(`Area description:${areaText}`);
                         this._elkPanel = new ElkPanel(Homebridge, this.log, areaText.description, this.elk, this.area, this.keypadCode);
                         this._elkAccessories.push(this._elkPanel);
-
+                        this.log.debug("Requesting zone descriptions");
                         return this.elk.requestTextDescriptionAll(0)
                     })
                     .then((zoneText) => {
@@ -93,6 +93,7 @@ ElkPlatform.prototype.accessories = function (callback) {
                             var td = zoneText[i];
                             this.zoneTexts[td.id] = td.description;
                         }
+                        this.log.debug("Requesting task descriptions");
                         return this.elk.requestTextDescriptionAll(5);
                     })
                     .then((taskText) => {
@@ -103,6 +104,7 @@ ElkPlatform.prototype.accessories = function (callback) {
                             this.tasks[td.id] = task;
                             this._elkAccessories.push(task);
                         }
+                        this.log.debug("Requesting output descriptions");
                         return this.elk.requestTextDescriptionAll(4);
                     })
                     .then((outputText) => {
