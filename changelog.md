@@ -1,5 +1,13 @@
 Changelog
 =========
+1.1.14
+------
+Really fix plugin registration name
+
+1.1.13
+------
+Fix plugin registration name
+
 1.1.12
 ------
 Additional debug logging

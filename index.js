@@ -20,7 +20,7 @@ module.exports = function (homebridge) {
     Homebridge = homebridge;
     Elk = require('elkmon');
 
-    homebridge.registerPlatform('homebridge-platform-elk', 'ElkM1', ElkPlatform);
+    homebridge.registerPlatform('homebridge-elkm1', 'ElkM1', ElkPlatform);
 }
 
 function ElkPlatform(log, config, api) {
