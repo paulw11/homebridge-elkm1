@@ -88,6 +88,7 @@ ElkPlatform.prototype.accessories = function (callback) {
                         return this.elk.requestTextDescriptionAll(0)
                     })
                     .then((zoneText) => {
+                        this.log.debug("Received zone descriptions");
                         this.zoneTexts = {};
                         for (var i = 0; i < zoneText.length; i++) {
                             var td = zoneText[i];
@@ -97,6 +98,7 @@ ElkPlatform.prototype.accessories = function (callback) {
                         return this.elk.requestTextDescriptionAll(5);
                     })
                     .then((taskText) => {
+                        this.log.debug("Received task descriptions");
                         this.tasks = {};
                         for (var i = 0; i < taskText.length; i++) {
                             var td = taskText[i];
@@ -109,6 +111,7 @@ ElkPlatform.prototype.accessories = function (callback) {
                     })
                     .then((outputText) => {
                         this.outputs = {};
+                        this.log.debug("Received output descriptions");
                         for (var i = 0; i < outputText.length; i++) {
                             var td = outputText[i];
                             var output = new ElkOutput(Homebridge, this.log, this.elk, td.id, td.description);

@@ -1,5 +1,9 @@
 Changelog
 =========
+1.1.12
+------
+Additional debug logging
+
 1.1.11
 ------
 Additional debug logging
