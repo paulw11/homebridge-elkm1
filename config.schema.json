@@ -2,8 +2,6 @@
 	"pluginAlias": "ElkM1",
 	"pluginType": "platform",
 	"singular": false,
-	"headerDisplay": "Optional content to display above the plugin config. Supports markdown.",
-	"footerDisplay": "Optional content to display below the plugin config. Supports markdown.",
 	"schema": {
 		"type": "object",
 		"properties": {
@@ -84,17 +82,20 @@
 			            "stateZone":{
 			               "title":"State zone",
 			               "type":"integer",
-			               "required":true
+			               "required":true,
+                           "description": "The zone that indicates whether the door is open or closed"
 			           },
-			            "openContact":{
+			            "openOutput":{
 			               "title":"Open contact",
 			               "type":"integer",
-			               "required":true
+			               "required":true,
+                           "description": "The contact (relay) that is pulsed to open the door"
 			           },
-			            "closeContact":{
+			            "closeOutput":{
 			               "title":"Close contact",
 			               "type":"integer",
-			               "required":true
+			               "required":true,
+                           "description": "The contact (relay) that is pulsed to close the door"
 			           }
 			       }
 			   }
