@@ -72,10 +72,6 @@ Fix issue with unnamed objects - Fix #5
 -----
 
 Fix issue with alarm being disarmed as soon as it was triggered
-
-1.1.2
------
-
 Use a logical state other than 'Normal' to indicate an alarm
 
 1.1.1
