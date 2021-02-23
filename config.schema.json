@@ -105,14 +105,20 @@
 			   }
 			},
             "includedTasks":{
-                "title":"Included task IDs",
+                "title":"Included tasks",
                 "type":"array",
-                "items":"integer"
+                "items": {
+                    "title":"Task number",
+                    "type":"integer"
+                }
             },
             "includedOutputs":{
-                "title":"Included output IDs",
+                "title":"Included outputs",
                 "type":"array",
-                "items":"integer"
+                "items": {
+                    "title":"Output number",
+                    "type":"integer"
+                }
             }			
 		}
 	},
