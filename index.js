@@ -131,7 +131,7 @@ ElkPlatform.prototype.accessories = function (callback) {
 
                         for (var i = 0; i < response.zones.length; i++) {
                             var zone = response.zones[i];
-                            if ('Unconfigured' != zone.logicalState) {
+                            if ('Unconfigured' != zone.logicalState && this.zoneTypes[zone.id] != undefined) {
                                 var td = this.zoneTexts[zone.id];
                                 this.log.debug("Zone " + td + " id " + zone.id + " " + zone.physicalState);
                                 var zoneType = this.zoneTypes[zone.id];
