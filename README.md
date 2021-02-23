@@ -55,8 +55,8 @@ homebridge-elkm1 exposes a *platform* to homebridge, so you need to add it to th
             "platform": "ElkM1",
             "name": "ElkM1",
             "elkAddress": "x.x.x.x",
-            "elkPort": "2101",
-            "area": "1",
+            "elkPort": 2101,
+            "area": 1,
             "keypadCode": "1234",
             "zoneTypes": [{
                 "zoneNumber": 1,
