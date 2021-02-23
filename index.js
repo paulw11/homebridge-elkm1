@@ -39,6 +39,8 @@ function ElkPlatform(log, config, api) {
     this.secure = this.config.secure;
     this.userName = this.config.userName;
     this.password = this.config.password;
+    this.includedTasks = [];
+    this.includedOutputs = [];
     this.includedTasks = this.config.includedTasks;
     this.includedOutputs = this.config.includedOutputs;
     if (Array.isArray(this.config.zoneTypes)) {
