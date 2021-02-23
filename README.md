@@ -6,7 +6,7 @@
 
 ## Functionality
 
-* homebridge-elkm1* exposes the following functionality via HomeKit:
+* *homebridge-elkm1* exposes the following functionality via HomeKit:
 * Arm/Disarm the alarm (Stay, Night and Away modes)
 * See the status of zones
 * Use zone status in HomeKit automation rules
