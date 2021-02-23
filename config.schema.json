@@ -103,7 +103,17 @@
 			           }
 			       }
 			   }
-			}		
+			},
+            "includedTasks":{
+                "title":"Included task IDs",
+                "type":"array",
+                "items":"integer"
+            },
+            "includedOutputs":{
+                "title":"Included output IDs",
+                "type":"array",
+                "items":"integer"
+            }			
 		}
 	},
 	"form": null,
