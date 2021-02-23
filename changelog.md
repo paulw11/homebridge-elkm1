@@ -5,6 +5,8 @@ Changelog
 -----
 
 Support config form
+Only import configured zones
+Only configure specified tasks and outputs
 
 1.1.15
 ------

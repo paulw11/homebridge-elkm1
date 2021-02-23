@@ -68,7 +68,7 @@ homebridge-elkm1 exposes a *platform* to homebridge, so you need to add it to th
             },
             {
                 "zoneNumber": 2,
-                "zoneType": "contact"
+                "zoneType": "garage"
             },
             {
                 "zoneNumber": 3,
@@ -90,7 +90,9 @@ homebridge-elkm1 exposes a *platform* to homebridge, so you need to add it to th
                 "closeOutput":"11",
                 "name":"Garage door"
             }
-            ]
+            ],
+            "includedTasks":[ 1 ],
+            "includedOutputs":[ 2 ]
         }
     ]
 ```
@@ -103,8 +105,10 @@ homebridge-elkm1 exposes a *platform* to homebridge, so you need to add it to th
 | keypadCode | A valid keypad code that homebridge-elkm1 can use to arm & disarm your area |
 | zoneTypes | An array of zone definitions.  Each zone has a `zoneNumber` and a `zoneType`.  Valid types are: *contact*, *motion*, *smoke* or *garage* |
 | garageDoors | An array of garage door objects.  Each garage door has a zone that shows the state of the door (This must be a *garage* zone type), a name, and two outputs; one that is pulsed to open the door and one that is pulsed to close it.  For many openers this will be the same output
+| includedTasks | The task numbers that will be added as HomeKit accessories.
+| includedOutputs | The outputs that will be added as HomeKit accessories.
 
-You should now be able to start homebridge and see your M1.
+You should now be able to start Homebridge and see your M1.
 
 ## TODO
 
