@@ -54,6 +54,10 @@
 									"title": "Contact",
 									"enum": ["contact"]
 								},
+                                {
+									"title": "Garage",
+									"enum": ["garage"]
+								},
 								{
 									"title": "Motion",
 									"enum": ["motion"]
