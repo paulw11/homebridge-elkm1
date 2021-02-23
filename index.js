@@ -39,8 +39,16 @@ function ElkPlatform(log, config, api) {
     this.secure = this.config.secure;
     this.userName = this.config.userName;
     this.password = this.config.password;
-    this.zoneTypes = this.config.zoneTypes;
-
+    if (Array.isArray(this.config.zoneTypes)) {
+        var zoneObjects = {};
+        for (const zone of this.config.zoneTypes) {
+           zoneObjects[zone.zoneNumber] = zone.zoneType;
+        }
+        this.zoneTypes = zoneObjects;
+    } else {
+        this.zoneTypes = this.config.zoneTypes;
+    }
+    
     this.api = api;
     this._elkAccessories = [];
     this.log = log;
