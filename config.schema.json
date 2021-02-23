@@ -1,0 +1,106 @@
+{
+	"pluginAlias": "ElkM1",
+	"pluginType": "platform",
+	"singular": false,
+	"headerDisplay": "Optional content to display above the plugin config. Supports markdown.",
+	"footerDisplay": "Optional content to display below the plugin config. Supports markdown.",
+	"schema": {
+		"type": "object",
+		"properties": {
+			"name": {
+				"title": "Name",
+				"type": "string",
+				"required": true
+			},
+			"elkAddress": {
+				"title": "ELK M1 IP Address",
+				"type": "string",
+				"format": "ipv4",
+				"required": true
+			},
+			"elkPort": {
+				"title": "Elk M1 port",
+				"type": "integer",
+				"default": 2101,
+				"required": true
+			},
+			"area": {
+				"title": "Elk M1 port",
+				"type": "integer",
+				"default": 1,
+				"minimum": 1,
+				"maximum": 8,
+				"required": true
+			},
+			"keypadCode": {
+				"title": "Keypad code",
+				"type": "integer",
+				"required": true
+			},
+			"zoneTypes": {
+				"type": "array",
+				"required": true,
+				"items": {
+					"title": "Zone",
+					"type": "object",
+					"properties": {
+						"zoneNumber": {
+							"title": "Zone number",
+							"type": "integer",
+							"required": true
+						},
+						"zoneType": {
+							"title": "Zone type",
+							"type": "string",
+							"oneOf": [{
+									"title": "Contact",
+									"enum": ["contact"]
+								},
+								{
+									"title": "Motion",
+									"enum": ["motion"]
+								},
+								{
+									"title": "Smoke",
+									"enum": ["smoke"]
+								}
+							]
+						}
+					}
+				}
+			},
+			"garageDoors":{
+			   "type":"array",
+			   "required":false,
+			   "items": {
+			       "title":"Garage door",
+			       "type":"object",
+			       "properties":{
+			           "name":{
+			               "title":"Name",
+			               "type":"string",
+			               "required":true
+			           },
+			            "stateZone":{
+			               "title":"State zone",
+			               "type":"integer",
+			               "required":true
+			           },
+			            "openContact":{
+			               "title":"Open contact",
+			               "type":"integer",
+			               "required":true
+			           },
+			            "closeContact":{
+			               "title":"Close contact",
+			               "type":"integer",
+			               "required":true
+			           }
+			       }
+			   }
+			}		
+		}
+	},
+	"form": null,
+	"display": null
+}
