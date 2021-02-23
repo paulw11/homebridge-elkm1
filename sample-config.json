@@ -1,37 +1,48 @@
 {
-    "bridge": {
-        "name": "HomebridgeM1",
-        "username": "44:25:3D:E3:CE:33",
-        "port": 51826,
-        "pin": "031-45-154"
-    },
-    "description": "M1 configuration",
-    "platforms": [
-        {
-            "platform": "ElkM1",
-            "name": "ElkM1",
-            "elkAddress": "x.x.x.x",
-            "elkPort": "2101",
-            "area": "1",
-            "keypadCode": "1234",
-            "zoneTypes": {
-                "1": "contact",
-                "2": "contact",
-                "3": "contact",
-                "4": "contact",
-                "5": "motion",
-                "6": "motion",
-                "7": "motion",
-                "8": "motion"
-            },
-            "garageDoors": [
-                {
-                    "stateZone": "2",
-                    "openOutput": "11",
-                    "closeOutput": "11",
-                    "name": "Garage Door"
-                }
-            ]
-        }
-    ]
+	"bridge": {
+		"name": "HomebridgeM1",
+		"username": "44:25:3D:E3:CE:33",
+		"port": 51826,
+		"pin": "031-45-154"
+	},
+	"description": "M1 configuration",
+	"platforms": [{
+		"platform": "ElkM1",
+		"name": "ElkM1",
+		"elkAddress": "x.x.x.x",
+		"elkPort": 2101,
+		"area": 1,
+		"keypadCode": "1234",
+		"zoneTypes": [{
+				"zoneNumber": 1,
+				"zoneType": "contact"
+			},
+			{
+				"zoneNumber": 1,
+				"zoneType": "contact"
+			},
+			{
+				"zoneNumber": 2,
+				"zoneType": "garage"
+			},
+			{
+				"zoneNumber": 3,
+				"zoneType": "contact"
+			},
+			{
+				"zoneNumber": 4,
+				"zoneType": "motion"
+			},
+			{
+				"zoneNumber": 5,
+				"zoneType": "smoke"
+			}
+		],
+		"garageDoors": [{
+			"stateZone": "2",
+			"openOutput": "11",
+			"closeOutput": "11",
+			"name": "Garage Door"
+		}]
+	}]
 }
