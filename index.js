@@ -39,6 +39,8 @@ function ElkPlatform(log, config, api) {
     this.secure = this.config.secure;
     this.userName = this.config.userName;
     this.password = this.config.password;
+    this.includedTasks = this.config.includedTasks;
+    this.includedOutputs = this.config.includedOutputs;
     if (Array.isArray(this.config.zoneTypes)) {
         var zoneObjects = {};
         for (const zone of this.config.zoneTypes) {
@@ -110,9 +112,11 @@ ElkPlatform.prototype.accessories = function (callback) {
                         this.tasks = {};
                         for (var i = 0; i < taskText.length; i++) {
                             var td = taskText[i];
-                            var task = new ElkTask(Homebridge, this.log, this.elk, td.id, td.description);
-                            this.tasks[td.id] = task;
-                            this._elkAccessories.push(task);
+                            if (this.includedTasks.includes(td.id) ) {
+                                var task = new ElkTask(Homebridge, this.log, this.elk, td.id, td.description);
+                                this.tasks[td.id] = task;
+                                this._elkAccessories.push(task);
+                            }
                         }
                         this.log.debug("Requesting output descriptions");
                         return this.elk.requestTextDescriptionAll(4);
@@ -122,9 +126,11 @@ ElkPlatform.prototype.accessories = function (callback) {
                         this.log.debug("Received output descriptions");
                         for (var i = 0; i < outputText.length; i++) {
                             var td = outputText[i];
-                            var output = new ElkOutput(Homebridge, this.log, this.elk, td.id, td.description);
-                            this.outputs[td.id] = output;
-                            this._elkAccessories.push(output);
+                            if (this.includedOutputs.includes(td.id)) { 
+                                var output = new ElkOutput(Homebridge, this.log, this.elk, td.id, td.description);
+                                this.outputs[td.id] = output;
+                                this._elkAccessories.push(output);
+                            }
                         }
                     })
                     .then(() => {
