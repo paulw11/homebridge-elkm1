@@ -1,10 +1,12 @@
 # homebridge-elkm1
+
 ## Homebridge plugin for the Elk M1 alarm panel
 
 *homebridge-elkm1* lets you connect homebridge to an [Elk Products M1 Alarm panel](http://www.elkproducts.com/m1_controls.html) via an [M1XEP Ethernet interface](http://www.elkproducts.com/products/elk-m1xep-m1-ethernet-interface)
 
 ## Functionality
-*homebridge-elkm1* exposes the following functionality via HomeKit:
+
+* homebridge-elkm1* exposes the following functionality via HomeKit:
 * Arm/Disarm the alarm (Stay, Night and Away modes)
 * See the status of zones
 * Use zone status in HomeKit automation rules
@@ -19,14 +21,35 @@ Most configuration items are discovered automatically, however you need to indic
 2. Install homebridge-elkm1 - `sudo npm install -g --unsafe-perm homebridge-elkm1`
 3. Update your configuration file.  There is a sample file in this repository.
 
-**Note** Your node.js must be version 6 or later in order for this plugin to work.  If you get a syntax error on startup, you 
+**Note** Your node.js must be version 6 or later in order for this plugin to work.  If you get a syntax error on startup, you
 probably need to upgrade your Node.js
 
 ## Configuration
 
+**Note** Version 2.0 has a change to the `zoneTypes` element of the configuration in order to support the configuration form in Homebridge-UI.  
+The old format will be read by verison 2.0, but zones will not appear in the Homebridge UI form until the file configuratiom file is changed.
+e.g. from
+
+```json
+"zoneTypes": {
+    "1":"contact"
+}
+```
+
+to
+
+```json
+"zoneTypes":[
+    {
+        "zoneNumber":1,
+        "zoneType":"contact"
+    }
+]
+```
+
 homebridge-elkm1 exposes a *platform* to homebridge, so you need to add it to the `platforms` section of your config.json file.
 
-```
+```json
  "platforms": [
         {
             "platform": "ElkM1",
@@ -35,19 +58,31 @@ homebridge-elkm1 exposes a *platform* to homebridge, so you need to add it to th
             "elkPort": "2101",
             "area": "1",
             "keypadCode": "1234",
-            "zoneTypes": {
-                "1": "contact",
-                "2": "garage",
-                "3": "contact",
-                "4": "contact",
-                "5": "motion",
-                "6": "motion",
-                "7": "motion",
-                "8": "motion",
-                "9": "motion",
-                "10": "motion",
-                "16": "smoke"
+            "zoneTypes": [{
+                "zoneNumber": 1,
+                "zoneType": "contact"
             },
+            {
+                "zoneNumber": 1,
+                "zoneType": "contact"
+            },
+            {
+                "zoneNumber": 2,
+                "zoneType": "contact"
+            },
+            {
+                "zoneNumber": 3,
+                "zoneType": "contact"
+            },
+            {
+                "zoneNumber": 4,
+                "zoneType": "motion"
+            },
+            {
+                "zoneNumber": 5,
+                "zoneType": "smoke"
+            }
+            ],
             "garageDoors":[
             {
                 "stateZone":"2",
@@ -66,7 +101,7 @@ homebridge-elkm1 exposes a *platform* to homebridge, so you need to add it to th
 | elkPort | The insecure port for your M1XEP; 2101 is the default if you haven't changed it |
 | area | The area you want to control; typically 1 |
 | keypadCode | A valid keypad code that homebridge-elkm1 can use to arm & disarm your area |
-| zoneTypes | A dictionary of zone numbers and their types.  Valid types are: *contact*, *motion*, *smoke* or *garage* |
+| zoneTypes | An array of zone definitions.  Each zone has a `zoneNumber` and a `zoneType`.  Valid types are: *contact*, *motion*, *smoke* or *garage* |
 | garageDoors | An array of garage door objects.  Each garage door has a zone that shows the state of the door (This must be a *garage* zone type), a name, and two outputs; one that is pulsed to open the door and one that is pulsed to close it.  For many openers this will be the same output
 
 You should now be able to start homebridge and see your M1.
