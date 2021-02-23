@@ -23,7 +23,7 @@
 				"required": true
 			},
 			"area": {
-				"title": "Elk M1 port",
+				"title": "Area",
 				"type": "integer",
 				"default": 1,
 				"minimum": 1,
