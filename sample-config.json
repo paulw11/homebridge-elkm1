@@ -43,6 +43,8 @@
 			"openOutput": "11",
 			"closeOutput": "11",
 			"name": "Garage Door"
-		}]
+		}],
+        "includedTasks":[ 1 ],
+        "includedOutputs":[ 2 ]
 	}]
 }
