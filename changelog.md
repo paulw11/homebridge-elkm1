@@ -1,5 +1,9 @@
 Changelog
 =========
+1.1.15
+------
+Fix warning on Homebridge 1.3.0 - don't return state from SET operations
+
 1.1.14
 ------
 Really fix plugin registration name
