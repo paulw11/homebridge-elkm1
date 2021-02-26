@@ -27,7 +27,7 @@ probably need to upgrade your Node.js
 ## Configuration
 
 **Note** Version 2.0 has a change to the `zoneTypes` element of the configuration in order to support the configuration form in Homebridge-UI.  
-The old format will be read by verison 2.0, but zones will not appear in the Homebridge UI form until the file configuratiom file is changed.
+The old format will be read by verison 2.0, but zones will not appear in the Homebridge UI form until the configuration file is changed.
 e.g. from
 
 ```json
