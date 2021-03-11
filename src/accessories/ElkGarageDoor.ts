@@ -14,8 +14,8 @@ export class ElkGarageDoor {
     public readonly stateZone: number;
     public readonly obstructionZone: number;
     public readonly name: string;
-    private targetState; //= Characteristic.TargetDoorState.CLOSED;
-    private currentState;// = null Characteristic.CurrentDoorState.CLOSED;
+    private targetState;
+    private currentState;
     private isObstructed = false;
 
     constructor(
@@ -35,7 +35,6 @@ export class ElkGarageDoor {
             throw new Error('Garage door must have state zone');
         } else {
             this.stateZone = device.garageDoor.stateZone;
-            this.platform.log.debug(`Set state zone to ${this.stateZone} from ${device.garageDoor.stateZone} ${JSON.stringify(device.garageDoor)}`);
         }
         this.obstructionZone = device.garageDoor.obstructionZone;
 

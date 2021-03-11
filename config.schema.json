@@ -22,6 +22,11 @@
 				"default": 2101,
 				"required": true
 			},
+			"secure": {
+				"title":"Secure connection",
+				"type": "boolean",
+				"required":true
+			},
 			"area": {
 				"title": "Area",
 				"type": "integer",

@@ -31,6 +31,9 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
     private zoneAccessories: Record<number, ElkInput> = {};
     private garageDoorAccessories: ElkGarageDoor[] = [];
 
+    private initialRetryDelay = 5000;
+    private retryDelay = this.initialRetryDelay;
+
     constructor(
         public readonly log: Logger,
         public readonly config: PlatformConfig,
@@ -80,7 +83,7 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
                     password: this.password,
                     keypadCode: this.keypadCode,
                     rejectUnauthorized: false,
-                    secureProtocol: 'TLS1_method',
+                    secureProtocol: 'TLSv1_method',
                 });
         } else {
             this.log.warn('Connection is not secure');
@@ -89,6 +92,7 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
 
         this.elk.on('connected', () => {
             this.discoverDevices();
+            this.retryDelay = this.initialRetryDelay;
         });
 
         this.elk.on('ZC', (msg) => {
@@ -111,18 +115,23 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
             this.log.debug(message);
         });
 
+        this.elk.on('error', (err) => {
+            this.log.error(`Error connecting to ElkM1 ${err}. Will retry in ${this.retryDelay/1000}s`);
+            setTimeout(() => {
+                this.connect();
+            }, this.retryDelay);
+            this.retryDelay = this.retryDelay * 2;
+        });
+
         // When this event is fired it means Homebridge has restored all cached accessories from disk.
         // Dynamic Platform plugins should only register new accessories after this event was fired,
         // in order to ensure they weren't added to homebridge already. This event can also be used
         // to start discovery of new accessories.
         this.api.on('didFinishLaunching', () => {
             log.debug('Executed didFinishLaunching callback');
-            this.elk.connect();
-            // run the method to discover / register your devices as accessories
-            //  this.discoverDevices();
+            this.connect();
         });
     }
-
 
     /**
      * This function is invoked when homebridge restores cached accessories from disk at startup.
@@ -203,7 +212,6 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
                         }
                     })
                     .then(() => {
-
                         for (const zone of response.zones) {
                             if ('Unconfigured' !== zone.logicalState && this.zoneTypes[zone.id] !== undefined) {
                                 this.addZone(zone);
@@ -211,24 +219,25 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
                         }
                         this.log.debug('Checking initial garage door states');
                         for (const garageDoor of this.garageDoorAccessories) {
-                            this.log.debug(`Checking state of door ${garageDoor.name} ${garageDoor.stateZone}`);
                             if (garageDoor.stateZone !== undefined) {
                                 garageDoor.setState(response.zones[garageDoor.stateZone-1]);
-                                this.log.debug(JSON.stringify(response.zones[garageDoor.stateZone-1]));
                             } else {
                                 this.log.debug(`Unable to set state of ${garageDoor.name}`);
                             }
 
                             if (garageDoor.obstructionZone !== undefined) {
                                 garageDoor.setObstructionStatus(response.zones[garageDoor.obstructionZone]);
-                                this.log.debug(`Initial garage door obstruction state ${response.zones[garageDoor.stateZone]}`);
                             }
                         }
-                        // this.elk.requestArmingStatus();
-                    }).catch((error) => {
-                        this.log.error('Error retrieving data from M1 panel');
-                        this.log.error(error);
+                        this.log.debug('Requesting arming status');
+                        this.elk.requestArmingStatus();
+                        this.log.info('Startup complete');
                     });
+            }).catch((error) => {
+                this.log.error('Error retrieving data from M1 panel');
+                this.log.error(error);
+                this.elk.disconnect();
+                this.connect();
             });
     }
 
@@ -407,6 +416,15 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
             this.garageDoorAccessories.push(door);
             // link the accessory to your platform
             this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+        }
+    }
+
+    async connect() {
+        try {
+            this.log.info('Attempting to connect to Elk M1');
+            this.elk.connect();
+        } catch (err) {
+            this.log.error(`Caught ${err} during connect`);
         }
     }
 }

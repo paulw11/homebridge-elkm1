@@ -65,7 +65,10 @@ export class ElkPanel {
             const armStatus = this.hkStatusFromElkStatus(area);
             this.currentState = armStatus;
             return armStatus;
-        });
+        })
+            .catch((err) => {
+                this.platform.log.error(`Caught error (${err}) trying to get current state of panel`);
+            });
     }
 
     async getTargetState(): Promise<CharacteristicValue> {

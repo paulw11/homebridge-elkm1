@@ -57,7 +57,11 @@ export class ElkOutput {
             const isOn = outputStatusResponse.outputs[this.id - 1] === 'On';
             this.isOn = isOn;
             return isOn;
-        });
+        })
+            .catch((err) => {
+                this.platform.log.error(`Caught error (${err}) trying to get current state of output ${this.id}`);
+                return this.isOn;
+            });
     }
 
     async setOutput(value: CharacteristicValue) {
