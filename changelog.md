@@ -1,6 +1,15 @@
 Changelog
 =========
 
+3.0.0
+-----
+
+Re-written in Typescript
+Add support for garage door obstruction monitoring
+Add support for tamper detection on normally open and normally closed zones
+Implement exponential backoff and retry for connection failures
+Improved exception handling
+
 2.0.0
 -----
 

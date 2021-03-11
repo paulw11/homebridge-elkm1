@@ -26,8 +26,8 @@ probably need to upgrade your Node.js
 
 ## Configuration
 
-**Note** Version 2.0 has a change to the `zoneTypes` element of the configuration in order to support the configuration form in Homebridge-UI.  
-The old format will be read by verison 2.0, but zones will not appear in the Homebridge UI form until the configuration file is changed.
+**Note** From version 2.0 there is a change to the `zoneTypes` element of the configuration in order to support the configuration form in Homebridge-UI.  
+The old format will be read by verison 2.0 and later, but zones will not appear in the Homebridge UI form until the configuration file is changed.
 e.g. from
 
 ```json
@@ -86,6 +86,7 @@ homebridge-elkm1 exposes a *platform* to homebridge, so you need to add it to th
             "garageDoors":[
             {
                 "stateZone":"2",
+                "obstructionZone":"3",
                 "openOutput":"11",
                 "closeOutput":"11",
                 "name":"Garage door"
@@ -104,12 +105,27 @@ homebridge-elkm1 exposes a *platform* to homebridge, so you need to add it to th
 | area | The area you want to control; typically 1 |
 | keypadCode | A valid keypad code that homebridge-elkm1 can use to arm & disarm your area |
 | zoneTypes | An array of zone definitions.  Each zone has a `zoneNumber` and a `zoneType`.  Valid types are: *contact*, *motion*, *smoke* or *garage* |
-| garageDoors | An array of garage door objects.  Each garage door has a zone that shows the state of the door (This must be a *garage* zone type), a name, and two outputs; one that is pulsed to open the door and one that is pulsed to close it.  For many openers this will be the same output
+| garageDoors | An array of garage door objects.  Each garage door has a zone that shows the state of the door (This must be a *garage* zone type), an optional zone that indicates when the door is obstructed (This should be a *contact* zone type) a name, and two outputs; one that is pulsed to open the door and one that is pulsed to close it.  For many openers this will be the same output
 | includedTasks | The task numbers that will be added as HomeKit accessories.
 | includedOutputs | The outputs that will be added as HomeKit accessories.
 
 You should now be able to start Homebridge and see your M1.
 
+## Zone tamper detection
+
+New in version 3.0.0 is the ability to monitor the tamper status of zones by defining them as normally open or normally closed.
+Tamper protection requires end-of-line resistors to be installed appropriately in your alarm sensors.
+
+The following zone types are available:
+| **zone type** | **description**                   |
+|---------------|-----------------------------------|
+| ncContact     | A normally closed contact         |
+| noContact     | A normally open contact           |
+| ncMotion      | A normally closed motion detector |
+| noMotion      | A normally open motion detector   |
+| ncSmoke       | A normally closed smoke detector  |
+| noSmoke       | A normally open smoke detector    |
+
 ## TODO
 
-* Secure connections are not currently supported
+* [Secure connections do not work at this time.](https://github.com/paulw11/homebridge-elkm1/issues/16)
