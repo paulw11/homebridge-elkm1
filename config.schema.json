@@ -50,100 +50,127 @@
 						"zoneType": {
 							"title": "Zone type",
 							"type": "string",
-							"oneOf": [{
+							"oneOf": [
+								{
 									"title": "Contact",
-									"enum": ["contact"]
+									"enum": [
+										"contact"
+									]
 								},
 								{
 									"title": "Normally closed contact",
-									"enum": ["ncContact"]
+									"enum": [
+										"ncContact"
+									]
 								},
 								{
 									"title": "Normally open contact",
-									"enum": ["noContact"]
+									"enum": [
+										"noContact"
+									]
 								},
-                                {
+								{
 									"title": "Garage",
-									"enum": ["garage"]
+									"enum": [
+										"garage"
+									]
 								},
 								{
 									"title": "Motion",
-									"enum": ["motion"]
+									"enum": [
+										"motion"
+									]
 								},
 								{
 									"title": "Normally closed motion",
-									"enum": ["ncMotion"]
+									"enum": [
+										"ncMotion"
+									]
 								},
 								{
 									"title": "Normally open motion",
-									"enum": ["noMotion"]
+									"enum": [
+										"noMotion"
+									]
 								},
 								{
 									"title": "Smoke",
-									"enum": ["smoke"]
+									"enum": [
+										"smoke"
+									]
 								},
 								{
 									"title": "Normally closed smoke",
-									"enum": ["ncSmoke"]
+									"enum": [
+										"ncSmoke"
+									]
 								},
 								{
 									"title": "Normally open smoke",
-									"enum": ["noSmoke"]
+									"enum": [
+										"noSmoke"
+									]
 								}
 							]
 						}
 					}
 				}
 			},
-			"garageDoors":{
-			   "type":"array",
-			   "required":false,
-			   "items": {
-			       "title":"Garage door",
-			       "type":"object",
-			       "properties":{
-			           "name":{
-			               "title":"Name",
-			               "type":"string",
-			               "required":true
-			           },
-			            "stateZone":{
-			               "title":"State zone",
-			               "type":"integer",
-			               "required":true,
-                           "description": "The zone that indicates whether the door is open or closed"
-			           },
-			            "openOutput":{
-			               "title":"Open contact",
-			               "type":"integer",
-			               "required":true,
-                           "description": "The contact (relay) that is pulsed to open the door"
-			           },
-			            "closeOutput":{
-			               "title":"Close contact",
-			               "type":"integer",
-			               "required":true,
-                           "description": "The contact (relay) that is pulsed to close the door"
-			           }
-			       }
-			   }
+			"garageDoors": {
+				"type": "array",
+				"required": false,
+				"items": {
+					"title": "Garage door",
+					"type": "object",
+					"properties": {
+						"name": {
+							"title": "Name",
+							"type": "string",
+							"required": true
+						},
+						"stateZone": {
+							"title": "State zone",
+							"type": "integer",
+							"required": true,
+							"description": "The zone that indicates whether the door is open or closed"
+						},
+						"obstructionZone": {
+							"title": "Obstruction zone",
+							"type": "integer",
+							"required": false,
+							"description": "The zone that indicates if the door is obstructed"
+						},
+						"openOutput": {
+							"title": "Open contact",
+							"type": "integer",
+							"required": true,
+							"description": "The contact (relay) that is pulsed to open the door"
+						},
+						"closeOutput": {
+							"title": "Close contact",
+							"type": "integer",
+							"required": true,
+							"description": "The contact (relay) that is pulsed to close the door"
+						}
+					}
+				}
 			},
-            "includedTasks":{
-                "title":"Included tasks",
-                "type":"array",
-                "items": {
-                    "title":"Task number",
-                    "type":"integer"
-                }
-            },
-            "includedOutputs":{
-                "title":"Included outputs",
-                "type":"array",
-                "items": {
-                    "title":"Output number",
-                    "type":"integer"
-                }
-            }			
+			"includedTasks": {
+				"title": "Included tasks",
+				"type": "array",
+				"items": {
+					"title": "Task number",
+					"type": "integer"
+				}
+			},
+			"includedOutputs": {
+				"title": "Included outputs",
+				"type": "array",
+				"items": {
+					"title": "Output number",
+					"type": "integer"
+				}
+			}
 		}
 	},
 	"form": null,

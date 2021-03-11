@@ -24,7 +24,7 @@ export class ElkSmoke extends ElkInput {
 
         this.service.setCharacteristic(this.platform.Characteristic.Name, itemName);
 
-        this.service.getCharacteristic(this.platform.Characteristic.MotionDetected)
+        this.service.getCharacteristic(this.platform.Characteristic.SmokeDetected)
             .onGet(this.getContact.bind(this));
 
         this.service.getCharacteristic(this.platform.Characteristic.StatusTampered)

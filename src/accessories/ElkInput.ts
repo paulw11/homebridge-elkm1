@@ -36,11 +36,6 @@ export class ElkInput {
             .setCharacteristic(this.platform.Characteristic.Manufacturer, 'ELK')
             .setCharacteristic(this.platform.Characteristic.SerialNumber, `${accessory.context.device.id}`.padStart(4, '0'));
 
-        this.elk.on('ZC', (msg) => {
-            if (msg.id === this.id) {
-                this.setStatusFromMessage(msg);
-            }
-        });
     }
 
     async getContact(): Promise<CharacteristicValue> {
@@ -55,7 +50,7 @@ export class ElkInput {
         return tamperState;
     }
 
-    private setStatusFromMessage(message) {
+    setStatusFromMessage(message) {
         this.contactState.contactState = ('Normal' !== message.logicalState);
         switch (this.tamperType) {
             case TamperType.none:

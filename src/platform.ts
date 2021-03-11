@@ -2,7 +2,7 @@
 
 import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service, Characteristic } from 'homebridge';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
-import { ElkInput, TamperType, ElkContact, ElkMotion, ElkSmoke, ElkOutput, ElkTask, ElkPanel } from './accessories/index';
+import { ElkInput, TamperType, ElkContact, ElkMotion, ElkSmoke, ElkOutput, ElkTask, ElkPanel, ElkGarageDoor } from './accessories/index';
 import Elk from 'elkmon';
 
 
@@ -29,6 +29,7 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
     private garageDoors = {};
     private elk: Elk;
     private zoneAccessories: Record<number, ElkInput> = {};
+    private garageDoorAccessories: ElkGarageDoor[] = [];
 
     constructor(
         public readonly log: Logger,
@@ -62,6 +63,14 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
             this.zoneTypes = this.config.zoneTypes;
         }
 
+        this.garageDoors = {};
+        if (this.config.garageDoors) {
+            const gd = this.config.garageDoors;
+            for (const index in gd) {
+                this.garageDoors[gd[index].stateZone] = gd[index];
+            }
+        }
+
         if (this.secure) {
             this.log.debug('Secure connection');
             this.elk = new Elk(this.elkPort, this.elkAddress,
@@ -82,17 +91,24 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
             this.discoverDevices();
         });
 
-
-        this.elk.on('*', (message) => {
-            this.log.debug(message);
-        });
-
         this.elk.on('ZC', (msg) => {
             this.log.debug(msg);
             const accessory = this.zoneAccessories[msg.id];
             if ('undefined' !== typeof accessory) {
                 accessory.setStatusFromMessage(msg);
             }
+            for (const door of this.garageDoorAccessories) {
+                if (msg.id === door.stateZone) {
+                    door.setState(msg);
+                } else if (msg.id === door.obstructionZone) {
+                    door.setObstructionStatus(msg);
+                }
+            }
+
+        });
+
+        this.elk.on('*', (message) => {
+            this.log.debug(message);
         });
 
         // When this event is fired it means Homebridge has restored all cached accessories from disk.
@@ -188,50 +204,24 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
                     })
                     .then(() => {
 
-                        for (let i = 0; i < response.zones.length; i++) {
-                            const zone = response.zones[i];
+                        for (const zone of response.zones) {
                             if ('Unconfigured' !== zone.logicalState && this.zoneTypes[zone.id] !== undefined) {
-                                const td = this.zoneTexts[zone.id];
+                                this.addZone(zone);
+                            }
+                        }
+                        this.log.debug('Checking initial garage door states');
+                        for (const garageDoor of this.garageDoorAccessories) {
+                            this.log.debug(`Checking state of door ${garageDoor.name} ${garageDoor.stateZone}`);
+                            if (garageDoor.stateZone !== undefined) {
+                                garageDoor.setState(response.zones[garageDoor.stateZone-1]);
+                                this.log.debug(JSON.stringify(response.zones[garageDoor.stateZone-1]));
+                            } else {
+                                this.log.debug(`Unable to set state of ${garageDoor.name}`);
+                            }
 
-                                this.log.debug('Adding zone ' + td + ' id ' + zone.id + ' ' + zone.physicalState);
-                                const zoneType = this.zoneTypes[zone.id];
-
-                                const device = { name: td, id: zone.id, elk: this.elk };
-
-                                switch (zoneType) {
-                                    case 'contact':
-                                        this.addContact();
-                                        break;
-                                    case 'ncContact':
-                                        this.addContact(device, TamperType.normallyClosed);
-                                        break;
-                                    case 'noContact':
-                                        this.addContact(device, TamperType.normallyOpen);
-                                        break;
-                                    case 'motion':
-                                        this.addMotion(device);
-                                        break;
-                                    case 'ncMotion':
-                                        this.addMotion(device, TamperType.normallyClosed);
-                                        break;
-                                    case 'noMotion':
-                                        this.addMotion(device, TamperType.normallyOpen);
-                                        break;
-                                    case 'smoke':
-                                        this.addSmoke(device);
-                                        break;
-                                    case 'ncSmoke':
-                                        this.addSmoke(device, TamperType.normallyClosed);
-                                        break;
-                                    case 'noSmoke':
-                                        this.addSmoke(device, TamperType.normallyOpen);
-                                        break;
-                                    case 'garage':
-                                        if (this.garageDoors[`${zone.id}`]) {
-                                            //          var gd = this.garageDoors[zone.id];
-                                            //        newZone = new ElkGarageDoor(Homebridge, this.log, this.elk, gd);
-                                        }
-                                }
+                            if (garageDoor.obstructionZone !== undefined) {
+                                garageDoor.setObstructionStatus(response.zones[garageDoor.obstructionZone]);
+                                this.log.debug(`Initial garage door obstruction state ${response.zones[garageDoor.stateZone]}`);
                             }
                         }
                         // this.elk.requestArmingStatus();
@@ -240,6 +230,52 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
                         this.log.error(error);
                     });
             });
+    }
+
+    addZone(zone) {
+        const td = this.zoneTexts[zone.id];
+
+        this.log.debug('Adding zone ' + td + ' id ' + zone.id + ' ' + zone.physicalState);
+        const zoneType = this.zoneTypes[zone.id];
+
+        const device = { name: td, id: zone.id, elk: this.elk };
+        switch (zoneType) {
+            case 'contact':
+                this.addContact(device, zone);
+                break;
+            case 'ncContact':
+                this.addContact(device, zone, TamperType.normallyClosed);
+                break;
+            case 'noContact':
+                this.addContact(device, zone, TamperType.normallyOpen);
+                break;
+            case 'motion':
+                this.addMotion(device, zone);
+                break;
+            case 'ncMotion':
+                this.addMotion(device, zone, TamperType.normallyClosed);
+                break;
+            case 'noMotion':
+                this.addMotion(device, zone, TamperType.normallyOpen);
+                break;
+            case 'smoke':
+                this.addSmoke(device, zone);
+                break;
+            case 'ncSmoke':
+                this.addSmoke(device, zone, TamperType.normallyClosed);
+                break;
+            case 'noSmoke':
+                this.addSmoke(device, zone, TamperType.normallyOpen);
+                break;
+            case 'garage':
+                if (this.garageDoors[`${zone.id}`]) {
+                    const garageDoor = this.garageDoors[zone.id];
+                    const device = { name: garageDoor.name, id: zone.id, elk: this.elk, garageDoor: garageDoor };
+                    this.addGarageDoor(device);
+                } else {
+                    this.log.warn(`Zone ${zone.id} is of type garage door, but no matching garage door definition was found`);
+                }
+        }
     }
 
     addPanel(device) {
@@ -296,19 +332,19 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
         }
     }
 
-    addInputAccessory(device, inputDesc, inputType: typeof ElkInput, tamperType = TamperType.none) {
+    addInputAccessory(device, inputDesc, zoneMsg, inputType: typeof ElkInput, tamperType = TamperType.none) {
         device.displayName = (typeof device.name !== 'undefined') ? device.name :
             `${inputDesc} ${device.id}`;
-        const uuidStr = `${inputDesc}${device.id}`;
-        this.log.debug(uuidStr);
         const uuid = this.api.hap.uuid.generate(`${inputDesc}${device.id}`);
         const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
         if (existingAccessory) {
             // the accessory already exists
             this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
+            existingAccessory.context.device = device;
             const input = new inputType(this, existingAccessory);
             input.tamperType = tamperType;
+            input.setStatusFromMessage(zoneMsg);
             this.zoneAccessories[device.id] = input;
         } else {
             this.log.info('Adding new accessory:', device.displayName);
@@ -323,234 +359,54 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
             // create the accessory handler for the newly create accessory
             // this is imported from `platformAccessory.ts`
             const input = new inputType(this, accessory);
+            input.setStatusFromMessage(zoneMsg);
             input.tamperType = tamperType;
             this.zoneAccessories[device.id] = input;
-
             // link the accessory to your platform
             this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
         }
     }
 
-    addContact(device, tamperType = TamperType.none) {
-        this.addInputAccessory(device, 'Contact', ElkContact, tamperType);
+    addContact(device, zoneMsg, tamperType = TamperType.none) {
+        this.addInputAccessory(device, 'Contact', zoneMsg, ElkContact, tamperType);
     }
 
-    addMotion(device, tamperType = TamperType.none) {
-        this.addInputAccessory(device, 'Motion', ElkMotion, tamperType);
+    addMotion(device, zoneMsg, tamperType = TamperType.none) {
+        this.addInputAccessory(device, 'Motion', zoneMsg, ElkMotion, tamperType);
     }
 
-    addSmoke(device, tamperType = TamperType.none) {
-        this.addInputAccessory(device, 'Smoke', ElkSmoke, tamperType);
+    addSmoke(device, zoneMsg, tamperType = TamperType.none) {
+        this.addInputAccessory(device, 'Smoke', zoneMsg, ElkSmoke, tamperType);
+    }
+
+    addGarageDoor(device) {
+        device.displayName = (typeof device.name !== 'undefined') ? device.name :
+            `Garage door ${device.id}`;
+        const uuid = this.api.hap.uuid.generate(`garageDoor${device.id}`);
+        const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+
+        if (existingAccessory) {
+            // the accessory already exists
+            this.log.info('Restoring existing garage door from cache:', existingAccessory.displayName);
+            existingAccessory.context.device = device;
+            const door = new ElkGarageDoor(this, existingAccessory);
+            this.garageDoorAccessories.push(door);
+        } else {
+            this.log.info('Adding new garage door:', device.displayName);
+
+            // create a new accessory
+            const accessory = new this.api.platformAccessory(device.displayName, uuid);
+
+            // store a copy of the device object in the `accessory.context`
+            // the `context` property can be used to store any data about the accessory you may need
+            accessory.context.device = device;
+
+            // create the accessory handler for the newly create accessory
+            // this is imported from `platformAccessory.ts`
+            const door = new ElkGarageDoor(this, accessory);
+            this.garageDoorAccessories.push(door);
+            // link the accessory to your platform
+            this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+        }
     }
 }
-
-
-
-/*
-var Accessory, Service, Characteristic, UUIDGen, Elk, Homebridge, ElkPanel;
-
-var ElkPanel = require('./accessories/ElkPanel.ts');
-var ElkContact = require('./lib/ElkContact.js');
-var ElkMotion = require('./lib/ElkMotion.js');
-var ElkSmoke = require('./lib/ElkSmoke.js');
-var ElkOutput = require('./lib/ElkOutput.js');
-var ElkTask = require('./lib/ElkTask.js');
-var ElkGarageDoor = require('./lib/ElkGarageDoor.js');
-
-
-module.exports = function (homebridge) {
-
-   Accessory = homebridge.platformAccessory;
-   UUIDGen = homebridge.hap.uuid;
-   Service = homebridge.hap.Service;
-   Characteristic = homebridge.hap.Characteristic;
-   Homebridge = homebridge;
-   Elk = require('elkmon');
-
-   homebridge.registerPlatform('homebridge-elkm1', 'ElkM1', ElkPlatform);
-}
-
-function ElkPlatform(log, config, api) {
-   if (!config) {
-      log.warn('Ignoring Elk platform setup because it is not configured');
-      this.disabled = true;
-      return;
-   }
-
-   this.config = config;
-
-   this.elkAddress = this.config.elkAddress;
-   this.elkPort = this.config.elkPort;
-   this.area = this.config.area;
-   this.keypadCode = this.config.keypadCode;
-   this.secure = this.config.secure;
-   this.userName = this.config.userName;
-   this.password = this.config.password;
-   this.includedTasks = [];
-   this.includedOutputs = [];
-   if (undefined != this.config.includedTasks) {
-      this.includedTasks = this.config.includedTasks;
-   }
-   if (undefined != this.config.includedOutputs) {
-      this.includedOutputs = this.config.includedOutputs;
-   }
-   if (Array.isArray(this.config.zoneTypes)) {
-      var zoneObjects = {};
-      for (const zone of this.config.zoneTypes) {
-         zoneObjects[zone.zoneNumber] = zone.zoneType;
-      }
-      this.zoneTypes = zoneObjects;
-   } else {
-      this.zoneTypes = this.config.zoneTypes;
-   }
-
-   this.api = api;
-   this._elkAccessories = [];
-   this.log = log;
-   if (this.secure) {
-      this.log.debug("Secure connection");
-      this.elk = new Elk(this.elkPort, this.elkAddress,
-         {
-            secure: true,
-            userName: this.userName,
-            password: this.password,
-            keypadCode: this.keypadCode,
-            rejectUnauthorized: false,
-            secureProtocol: 'TLS1_method'
-         });
-   } else {
-      this.log.warn("Connection is not secure");
-      this.elk = new Elk(this.elkPort, this.elkAddress, { secure: false });
-   }
-   this.zoneAccessories = {};
-   this.garageDoors = {};
-   if (this.config.garageDoors) {
-      var gd = this.config.garageDoors;
-      for (var i = 0; i < gd.length; i++) {
-         this.garageDoors[gd[i].stateZone] = gd[i];
-      }
-   }
-}
-
-ElkPlatform.prototype.accessories = function (callback) {
-
-   this.log.info('Connecting to M1');
-   this.elk.connect();
-
-   this.elk.on('connected', () => {
-      this.log.info('***Connected***');
-      this.elk.requestZoneStatusReport()
-         .then((response) => {
-            this.log.debug("Requesting area description");
-            return this.elk.requestTextDescription(this.area, '1')
-               .then((areaText) => {
-                  this.log.debug(`Area description:${areaText}`);
-                  this._elkPanel = new ElkPanel(Homebridge, this.log, areaText.description, this.elk, this.area, this.keypadCode);
-                  this._elkAccessories.push(this._elkPanel);
-                  this.log.debug("Requesting zone descriptions");
-                  return this.elk.requestTextDescriptionAll(0)
-               })
-               .then((zoneText) => {
-                  this.log.debug("Received zone descriptions");
-                  this.zoneTexts = {};
-                  for (var i = 0; i < zoneText.length; i++) {
-                     var td = zoneText[i];
-                     this.zoneTexts[td.id] = td.description;
-                  }
-                  this.log.debug("Requesting task descriptions");
-                  return this.elk.requestTextDescriptionAll(5);
-               })
-               .then((taskText) => {
-                  this.log.debug("Received task descriptions");
-                  this.tasks = {};
-                  for (var i = 0; i < taskText.length; i++) {
-                     var td = taskText[i];
-                     if (this.includedTasks.includes(td.id)) {
-                        var task = new ElkTask(Homebridge, this.log, this.elk, td.id, td.description);
-                        this.tasks[td.id] = task;
-                        this._elkAccessories.push(task);
-                     }
-                  }
-                  this.log.debug("Requesting output descriptions");
-                  return this.elk.requestTextDescriptionAll(4);
-               })
-               .then((outputText) => {
-                  this.outputs = {};
-                  this.log.debug("Received output descriptions");
-                  for (var i = 0; i < outputText.length; i++) {
-                     var td = outputText[i];
-                     if (this.includedOutputs.includes(td.id)) {
-                        var output = new ElkOutput(Homebridge, this.log, this.elk, td.id, td.description);
-                        this.outputs[td.id] = output;
-                        this._elkAccessories.push(output);
-                     }
-                  }
-               })
-               .then(() => {
-
-                  for (var i = 0; i < response.zones.length; i++) {
-                     var zone = response.zones[i];
-                     if ('Unconfigured' != zone.logicalState && this.zoneTypes[zone.id] != undefined) {
-                        var td = this.zoneTexts[zone.id];
-                        this.log.debug("Adding zone " + td + " id " + zone.id + " " + zone.physicalState);
-                        var zoneType = this.zoneTypes[zone.id];
-                        var newZone = null;
-
-                        switch (zoneType) {
-                           case 'contact':
-                              newZone = new ElkContact(Homebridge, this.log, zone.id, td);
-                              break;
-                           case 'motion':
-                              newZone = new ElkMotion(Homebridge, this.log, zone.id, td);
-                              break;
-                           case 'smoke':
-                              newZone = new ElkSmoke(Homebridge, this.log, zone.id, td);
-                              break;
-                           case 'garage':
-                              if (this.garageDoors['' + zone.id]) {
-                                 var gd = this.garageDoors[zone.id];
-                                 newZone = new ElkGarageDoor(Homebridge, this.log, this.elk, gd);
-                              }
-                        }
-                        if (newZone) {
-                           this._elkAccessories.push(newZone);
-                           this.zoneAccessories[zone.id] = newZone;
-                        }
-                     }
-                  }
-                  callback(this._elkAccessories);
-                  this.elk.requestArmingStatus();
-               }).catch((error) => {
-                  this.log.error('Error retrieving data from M1 panel');
-                  this.log.error(error);
-                  callback([]);
-               });
-         })
-   });
-
-   this.elk.on('ZC', (msg) => {
-      this.log.debug(msg);
-      var accessory = this.zoneAccessories[msg.id];
-      if ('undefined' != typeof accessory) {
-         accessory.setStatusFromMessage(msg);
-      }
-   });
-
-   this.elk.on('CS', (msg) => {
-      this.log.debug("CS:");
-      this.log.debug(msg);
-   });
-
-   this.elk.on('CC', (msg) => {
-      this.log.debug(msg);
-      var output = this.outputs[msg.id];
-      if ('undefined' != typeof output) {
-         output.setStatusFromMessage(msg);
-      }
-   });
-
-   this.elk.on('error', (code) => {
-      this.log.error("Error code received from elkmon: " + code);
-   });
-
-};*/
