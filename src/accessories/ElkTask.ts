@@ -1,45 +1,57 @@
-"use strict";
+'use strict';
+import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
+import { ElkM1Platform } from '../platform';
+import Elk from 'elkmon';
 
-var Service, Characteristic, uuid;
+export class ElkTask {
 
-var ElkTask = function (homebridge, log, elk, id, name) {
+    private service: Service;
+    private elk: Elk;
+    private id: number;
 
-    Service = homebridge.hap.Service;
-    Characteristic = homebridge.hap.Characteristic;
-    uuid = homebridge.hap.uuid;
-    this.log = log;
-    this.id = id;
-    this.elk = elk; 
-    var itemName = (typeof name !== "undefined") ? name : "";
-    this.name = this.name = (itemName != "") ? itemName:"Task "+(id+'');;
-    this.uuid_base = "task"+this.name;
+    constructor(
+        protected readonly platform: ElkM1Platform,
+        protected readonly accessory: PlatformAccessory,
+    ) {
 
-    this._service = new Service.Switch(this.name);
-    this._informationService = new Service.AccessoryInformation();
+        const device = accessory.context.device;
 
-    this._onChar = this._service.getCharacteristic(Characteristic.On);
+        this.elk = device.elk;
+        this.id = device.id;
 
-    this._onChar.on('get', (callback) => {
-        callback(null, false);
-    });
+        this.service = accessory.getService(platform.Service.Switch) ||
+            accessory.addService(platform.Service.Switch);
 
-    this._onChar.on('set', (state,callback) => {
-        if (state) {
-           this.elk.activateTask(this.id);
-           setTimeout(function() {
-               this._service.setCharacteristic(Characteristic.On, false);
-           }.bind(this), 1000);
+        /* this.contactCharacteristic = platform.Characteristic.ContactSensorState;
+        this.tamperCharacteristic = platform.Characteristic.StatusTampered;*/
+
+        // set accessory information
+        this.accessory.getService(this.platform.Service.AccessoryInformation)!
+            .setCharacteristic(this.platform.Characteristic.Model, 'Task');
+
+        const itemName = (typeof device.name !== 'undefined') ? device.name :
+            `Task ${device.id}`;
+
+        this.service.setCharacteristic(this.platform.Characteristic.Name, itemName);
+
+        this.service.getCharacteristic(this.platform.Characteristic.On)
+            .onGet(this.getTaskState.bind(this))
+            .onSet(this.setTaskState.bind(this));
+    }
+
+    async getTaskState(): Promise<CharacteristicValue> {
+        return new Promise((resolve) => {
+            resolve(false);
+        });
+    }
+
+    async setTaskState(value: CharacteristicValue) {
+        const newState = `${value}` === 'true';
+        if (newState) {
+            this.elk.activateTask(this.id);
+            setTimeout(() => {
+                this.service.updateCharacteristic(this.platform.Characteristic.On, false);
+            }, 1000);
         }
-        callback(null);
-    });
-
-    this._informationService.setCharacteristic(Characteristic.Manufacturer, 'Elk')
-        .setCharacteristic(Characteristic.Model, 'Task')
-        .setCharacteristic(Characteristic.SerialNumber, this.id+'');
+    }
 }
-
-ElkTask.prototype.getServices = function () {
-    return [this._informationService, this._service];
-}
-
-module.exports = ElkTask;

@@ -54,6 +54,14 @@
 									"title": "Contact",
 									"enum": ["contact"]
 								},
+								{
+									"title": "Normally closed contact",
+									"enum": ["ncContact"]
+								},
+								{
+									"title": "Normally open contact",
+									"enum": ["noContact"]
+								},
                                 {
 									"title": "Garage",
 									"enum": ["garage"]
@@ -63,8 +71,24 @@
 									"enum": ["motion"]
 								},
 								{
+									"title": "Normally closed motion",
+									"enum": ["ncMotion"]
+								},
+								{
+									"title": "Normally open motion",
+									"enum": ["noMotion"]
+								},
+								{
 									"title": "Smoke",
 									"enum": ["smoke"]
+								},
+								{
+									"title": "Normally closed smoke",
+									"enum": ["ncSmoke"]
+								},
+								{
+									"title": "Normally open smoke",
+									"enum": ["noSmoke"]
 								}
 							]
 						}
