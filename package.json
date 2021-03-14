@@ -1,6 +1,6 @@
 {
   "name": "homebridge-elkm1",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Homebridge plugin for the Elk M1 alarm panel",
   "main": "dist/index.js",
   "scripts": {
@@ -31,12 +31,12 @@
   },
   "funding": [
     {
-      "type" : "github",
-      "url" : "https://github.com/sponsors/paulw11"
+      "type": "github",
+      "url": "https://github.com/sponsors/paulw11"
     },
     {
-      "type" : "paypal",
-      "url" : "https://paypal.me/paulwilko"
+      "type": "paypal",
+      "url": "https://paypal.me/paulwilko"
     }
   ],
   "devDependencies": {
