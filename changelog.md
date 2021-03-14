@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.1
+-----
+Update readme to include verified status
+
 3.0.0
 -----
 
