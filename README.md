@@ -4,7 +4,7 @@
 
 [![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
 [![BuyMeACoffee](https://img.shields.io/badge/coffee-donate-orange?logo=buy-me-a-coffee&logoColor=yellow)](https://www.buymeacoffee.com/paulw11)
-
+[![PayPal](https://img.shields.io/badge/paypal-donate-blue?logo=paypal)](https://paypal.me/paulwilko/)
 [![Downloads](https://img.shields.io/npm/dt/homebridge-elkm1?logo=npm)](https://nodei.co/npm/homebridge-elkm1/)
 [![npm (tag)](https://img.shields.io/npm/v/homebridge-elkm1/latest?logo=npm)](https://www.npmjs.com/package/homebridge-elkm1/v/latest)
 
