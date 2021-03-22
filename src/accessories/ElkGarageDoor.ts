@@ -46,6 +46,8 @@ export class ElkGarageDoor {
 
         // set accessory information
         this.accessory.getService(this.platform.Service.AccessoryInformation)!
+            .setCharacteristic(this.platform.Characteristic.Manufacturer, 'ELK')
+            .setCharacteristic(this.platform.Characteristic.SerialNumber, `${this.openOutput}/${this.closeOutput}/${this.stateZone}`)
             .setCharacteristic(this.platform.Characteristic.Model, 'Garage door');
 
         const itemName = (typeof device.name !== 'undefined') ? device.name :

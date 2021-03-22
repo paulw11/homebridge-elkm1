@@ -1,8 +1,14 @@
 Changelog
 =========
 
+3.0.2
+-----
+
+Update model for panel and serial number for garage door.
+
 3.0.1
 -----
+
 Update readme to include verified status
 
 3.0.0
