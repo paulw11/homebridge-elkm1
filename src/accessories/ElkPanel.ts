@@ -36,7 +36,8 @@ export class ElkPanel {
 
         this.accessory.getService(this.platform.Service.AccessoryInformation)!
             .setCharacteristic(this.platform.Characteristic.Manufacturer, 'ELK')
-            .setCharacteristic(this.platform.Characteristic.SerialNumber, `${device.area}}`.padStart(6, '0'));
+            .setCharacteristic(this.platform.Characteristic.Model, 'ELK M1')
+            .setCharacteristic(this.platform.Characteristic.SerialNumber, `${device.area}`.padStart(6, '0'));
 
         this.service.getCharacteristic(this.platform.Characteristic.SecuritySystemCurrentState)
             .onGet(this.getCurrentState.bind(this));
