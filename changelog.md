@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.3
+-----
+Fix debug logging for zone tamper
+
 3.0.2
 -----
 
