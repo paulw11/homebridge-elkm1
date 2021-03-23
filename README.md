@@ -132,6 +132,13 @@ The following zone types are available:
 | ncSmoke       | A normally closed smoke detector  |
 | noSmoke       | A normally open smoke detector    |
 
+## Elk M1 Panel set up
+
+In order for Homebridge-elkm1 to receive zone updates from your panel, you need to ensure that the
+serial 0 options are set correctly using ElkRP.
+
+![Serial options screenshot](https://user-images.githubusercontent.com/6835876/112089001-ee322480-8be4-11eb-82a6-daa9146ee68f.png)
+
 ## TODO
 
 * [Secure connections do not work at this time.](https://github.com/paulw11/homebridge-elkm1/issues/16)
