@@ -135,7 +135,7 @@ The following zone types are available:
 ## Elk M1 Panel set up
 
 In order for Homebridge-elkm1 to receive zone updates from your panel, you need to ensure that the
-serial 0 options are set correctly using ElkRP.
+Serial Port 0 Transmit Options are set correctly using ElkRP; You need to enable at least zone and output changes.
 
 ![Serial options screenshot](https://user-images.githubusercontent.com/6835876/112089001-ee322480-8be4-11eb-82a6-daa9146ee68f.png)
 
