@@ -1,6 +1,6 @@
 {
   "name": "homebridge-elkm1",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "Homebridge plugin for the Elk M1 alarm panel",
   "main": "dist/index.js",
   "scripts": {
