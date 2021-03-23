@@ -65,7 +65,7 @@ export class ElkInput {
         }
         this.platform.log.debug('Update contact state ->', this.contactState.contactState);
         this.updateContactState(this.contactState.contactState);
-        this.platform.log.debug('Update tamper state ->', this.contactState.contactState);
+        this.platform.log.debug('Update tamper state ->', this.contactState.tamperState);
         this.service!.updateCharacteristic(this.platform.Characteristic.StatusTampered, this.contactState.tamperState);
     }
 
