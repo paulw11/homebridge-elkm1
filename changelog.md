@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.4
+-----
+Update dependency for elkmon to 1.2.4 which fixes setOutputOn time padding
+
 3.0.3
 -----
 Fix debug logging for zone tamper
