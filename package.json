@@ -27,7 +27,6 @@
   },
   "homepage": "https://github.com/paulw11/homebridge-elkm1#readme",
   "dependencies": {
-    "elkmon": "^1.2.2"
   },
   "funding": [
     {
