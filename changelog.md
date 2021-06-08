@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.4
+-----
+Bump elkmon version 1.2.6
+
 3.0.3
 -----
 Fix debug logging for zone tamper
