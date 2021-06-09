@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.5
+-----
+Fix mistaken removal of elkmon dependency
+
 3.0.4
 -----
 Bump elkmon version 1.2.6
