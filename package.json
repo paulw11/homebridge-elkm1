@@ -1,6 +1,6 @@
 {
   "name": "homebridge-elkm1",
-  "version": "3.0.4",
+  "version": "3.0.3",
   "description": "Homebridge plugin for the Elk M1 alarm panel",
   "main": "dist/index.js",
   "scripts": {
@@ -26,7 +26,9 @@
     "homebridge": ">=0.2.0"
   },
   "homepage": "https://github.com/paulw11/homebridge-elkm1#readme",
-  "dependencies": {},
+  "dependencies": {
+    "elkmon": "^1.2.4"
+  },
   "funding": [
     {
       "type": "github",
