@@ -2,7 +2,6 @@
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 import { ElkM1Platform } from '../platform';
 import Elk from 'elkmon';
-import { setFlagsFromString } from 'node:v8';
 
 export enum TamperType {
     none = 'None',
