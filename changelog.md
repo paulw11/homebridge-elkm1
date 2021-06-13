@@ -1,6 +1,11 @@
 Changelog
 =========
 
+3.0.6
+-----
+
+- Update node dependencies to fix known vulnerabilities
+
 3.0.5
 -----
 Fix mistaken removal of elkmon dependency
