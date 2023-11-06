@@ -32,6 +32,7 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
     private garageDoorAccessories: ElkGarageDoor[] = [];
 
     private initialRetryDelay = 5000;
+    private maxRetryDelay = 30000;
     private retryDelay = this.initialRetryDelay;
 
     constructor(
@@ -120,7 +121,8 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
             setTimeout(() => {
                 this.connect();
             }, this.retryDelay);
-            this.retryDelay = this.retryDelay * 2;
+            // this.retryDelay = this.retryDelay * 2; will overflow the int after enough retries.  Use maxRetryDelay to cap the delay.
+            this.retryDelay = Math.min(this.retryDelay * 2, this.maxRetryDelay)
         });
 
         // When this event is fired it means Homebridge has restored all cached accessories from disk.
