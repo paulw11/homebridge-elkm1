@@ -92,10 +92,10 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
     if (this.config.areas) {
       this.areaConfigs = this.config.areas;
     } else {
-      if (this.config.area && this.config.keyPadCode) {
+      if (this.config.area && this.config.keypadCode) {
         const areaConfig: ElkAreaConfig = {
           area: this.config.area,
-          keypadCode: this.config.keyPadCode,
+          keypadCode: this.config.keypadCode,
         };
         this.areaConfigs = [areaConfig];
       } else {

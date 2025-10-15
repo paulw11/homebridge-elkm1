@@ -7,7 +7,7 @@ export interface ElkPlatformConfig extends PlatformConfig {
     userName: string;
     password: string;
     areas?: ElkAreaConfig[];
-    keyPadCode?: string;
+    keypadCode?: string;
     area?: number;
     includedTasks?: number[];
     includedOutputs?: number[];

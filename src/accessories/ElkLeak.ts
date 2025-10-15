@@ -9,7 +9,9 @@ export class ElkLeak extends ElkInput {
 
   protected initializeService(): void {
     this.service = this.accessory.getService(this.platform.Service.LeakSensor) ||
-            this.accessory.addService(this.platform.Service.LeakSensor);
+            this.accessory.addService(this.platform.Service.LeakSensor
+
+            );
   }
 
   protected getModelName(): string {
@@ -17,7 +19,7 @@ export class ElkLeak extends ElkInput {
   }
 
   protected getContactCharacteristic() {
-    return this.platform.Characteristic.CarbonDioxideDetected;
+    return this.platform.Characteristic.LeakDetected;
   }
 
   protected getDefaultName(): string {
