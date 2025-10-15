@@ -3,7 +3,7 @@
   "version": "4.0.0",
   "description": "Homebridge plugin for the Elk M1 alarm panel",
   "main": "dist/index.js",
-    "private": true,
+    "private": false,
   "scripts": {
     "build": "rimraf ./dist && tsc",
     "lint": "eslint . --max-warnings=0 --fix",
