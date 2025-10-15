@@ -1,6 +1,18 @@
 Changelog
 =========
 
+4.0.0
+-----
+* Updated in preparation for Homebridge 2.0
+
+* Support for multiple areas/partitions.  The `areas` configuration array allows you to specify a keypad code
+for each partition/area.
+
+* The "tamper specific" zone types have been removed.  Each zone now allows specification of a `tamperType`
+
+* New zone types: CO, CO2 and leak.
+
+
 3.0.6
 -----
 
