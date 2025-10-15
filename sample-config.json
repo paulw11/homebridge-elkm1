@@ -11,8 +11,12 @@
 		"name": "ElkM1",
 		"elkAddress": "x.x.x.x",
 		"elkPort": 2101,
-		"area": 1,
-		"keypadCode": "1234",
+	    "areas":[
+			{
+				"area": 1,
+				"keypadCode": "1234"
+			}
+		],
 		"zoneTypes": [{
 				"zoneNumber": 1,
 				"zoneType": "contact"

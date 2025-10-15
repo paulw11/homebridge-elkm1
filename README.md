@@ -21,14 +21,17 @@
 
 Most configuration items are discovered automatically, however you need to indicate zone types in the configuration file.
 
-## Installation
+## Changes to 4.0
 
-1. Install homebridge - `sudo npm install -g --unsafe-perm homebridge`
-2. Install homebridge-elkm1 - `sudo npm install -g --unsafe-perm homebridge-elkm1`
-3. Update your configuration file.  There is a sample file in this repository.
+* Updated in preparation for Homebridge 2.0
 
-**Note** Your node.js must be version 6 or later in order for this plugin to work.  If you get a syntax error on startup, you
-probably need to upgrade your Node.js
+* Support for multiple areas/partitions.  The `areas` configuration array allows you to specify a keypad code
+for each partition/area.
+
+* The "tamper specific" zone types have been removed.  Each zone now allows specification of a `tamperType`
+
+* New zone types: CO, CO2 and leak.
+
 
 ## Configuration
 
@@ -62,11 +65,16 @@ homebridge-elkm1 exposes a *platform* to homebridge, so you need to add it to th
             "name": "ElkM1",
             "elkAddress": "x.x.x.x",
             "elkPort": 2101,
-            "area": 1,
-            "keypadCode": "1234",
+            "areas":[
+                {
+                    "area": 1,
+                    "keypadCode": "1234",
+                }
+            ],
             "zoneTypes": [{
                 "zoneNumber": 1,
-                "zoneType": "contact"
+                "zoneType": "contact",
+                "tamperType":"nc"
             },
             {
                 "zoneNumber": 1,
@@ -108,29 +116,47 @@ homebridge-elkm1 exposes a *platform* to homebridge, so you need to add it to th
 | ---- | ----------- |
 | elkAddress | IP address or hostname of your Elk M1XEP ethernet interface |
 | elkPort | The insecure port for your M1XEP; 2101 is the default if you haven't changed it |
-| area | The area you want to control; typically 1 |
-| keypadCode | A valid keypad code that homebridge-elkm1 can use to arm & disarm your area |
-| zoneTypes | An array of zone definitions.  Each zone has a `zoneNumber` and a `zoneType`.  Valid types are: *contact*, *motion*, *smoke* or *garage* |
-| garageDoors | An array of garage door objects.  Each garage door has a zone that shows the state of the door (This must be a *garage* zone type), an optional zone that indicates when the door is obstructed (This should be a *contact* zone type) a name, and two outputs; one that is pulsed to open the door and one that is pulsed to close it.  For many openers this will be the same output
+| area | The area you want to control; typically 1 - Not required if you use the `areas` array |
+| keypadCode | A valid keypad code that homebridge-elkm1 can use to arm & disarm your area - Not required if you use the `areas` array|
+| areas | An array of objects, each with an `area` number and a `keypadCode` string |
+| zoneTypes | An array of zone definitions.  Each zone has a `zoneNumber`, `zoneType` and `tamperType`.|
+| garageDoors | An array of garage door objects.  Each garage door has a zone that shows the state of the door (This must be a *garage* zone type), an optional zone that indicates when the door is obstructed (This should be a `contact` zone type) a name, and two outputs; one that is pulsed to open the door and one that is pulsed to close it.  For many openers this will be the same output
 | includedTasks | The task numbers that will be added as HomeKit accessories.
 | includedOutputs | The outputs that will be added as HomeKit accessories.
 
-You should now be able to start Homebridge and see your M1.
+### Zone types
+Valid zone types are:
 
-## Zone tamper detection
+| **zone type** | **description**                                   |
+|----------------|--------------------------------------------------|
+| `contact`      | A contact sensor such as a door or window        |
+| `motion`       | A motion sensor                                  |
+| `smoke`        | A smoke sensor                                   |
+| `co`           | A Carbon Monoxide sensor                         |
+| `co2`          | A Carbon Dioxide sensor                          |
+| `leak`         | A water leak sensor                              |
+| `garage`       | A zone that is used to monitor a garage door     |
 
-New in version 3.0.0 is the ability to monitor the tamper status of zones by defining them as normally open or normally closed.
-Tamper protection requires end-of-line resistors to be installed appropriately in your alarm sensors.
 
-The following zone types are available:
-| **zone type** | **description**                   |
-|---------------|-----------------------------------|
-| ncContact     | A normally closed contact         |
-| noContact     | A normally open contact           |
-| ncMotion      | A normally closed motion detector |
-| noMotion      | A normally open motion detector   |
-| ncSmoke       | A normally closed smoke detector  |
-| noSmoke       | A normally open smoke detector    |
+### Zone tamper detection
+
+You can define the `tamperType` for each zone.  If `tamperType` is not
+specified, then `none` is used.
+
+The following tamper types are available:
+| **tamper type** | **description**                 |
+|-----------------|---------------------------------|
+| nc              | A normally closed tamper        |
+| no              | A normally open tamper          |
+| none            | Tamper is not used (default)    |
+
+## Tasks
+You can include tasks using the `includedTasks` configuration array.  These will be exposed to Homebridge as a switch.  
+When the switch is activated, it will trigger the task on the M1 and then turn off after one second.
+
+## Outputs
+You can include M1 outputs using the `includedOutputs` configration array. These will be exposed to Homebridge as a switch that
+controls the M1 output directly.
 
 ## Elk M1 Panel set up
 
@@ -139,6 +165,7 @@ Serial Port 0 Transmit Options are set correctly using ElkRP; You need to enable
 
 ![Serial options screenshot](https://user-images.githubusercontent.com/6835876/112089001-ee322480-8be4-11eb-82a6-daa9146ee68f.png)
 
-## TODO
+## Secure connection
 
-* [Secure connections do not work at this time.](https://github.com/paulw11/homebridge-elkm1/issues/16)
+The M1-XEP only supports TLS 1.0.  This is insecure and is no longer supported by modern operating systems.  It is, therefore, 
+not possible to suppot a secure connection to the M1.

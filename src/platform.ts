@@ -18,6 +18,30 @@ import { ZoneChangeUpdate } from 'elkmon/dist/lib/messages';
 import { ElkLeak } from './accessories/ElkLeak';
 
 
+/**
+ * Represents the Homebridge dynamic platform plugin for integrating Elk M1 security panels.
+ * 
+ * The `ElkM1Platform` class manages the connection to the Elk M1 panel, discovers and registers Homebridge accessories
+ * (such as zones, outputs, tasks, and garage doors), and handles communication and state updates between the Elk M1 system
+ * and Homebridge.
+ * 
+ * Key responsibilities:
+ * - Establishes and maintains a TCP connection to the Elk M1 panel.
+ * - Discovers and registers Homebridge accessories based on the Elk M1 configuration and panel state.
+ * - Handles Homebridge lifecycle events, such as restoring cached accessories and launching discovery after startup.
+ * - Listens for and processes Elk M1 events, updating accessory state accordingly.
+ * - Implements retry logic for connection failures with exponential backoff.
+ * 
+ * @remarks
+ * This class is intended to be used as a Homebridge dynamic platform plugin. It expects a configuration object
+ * conforming to `ElkPlatformConfig` and interacts with the Homebridge API.
+ * 
+ * @example
+ * // Example usage in Homebridge platform registration:
+ * homebridge.registerPlatform('homebridge-elkm1', 'ElkM1Platform', ElkM1Platform);
+ * 
+ * @see {@link https://github.com/homebridge/homebridge} for Homebridge platform plugin documentation.
+ */
 export class ElkM1Platform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service;
   public readonly Characteristic: typeof Characteristic;
@@ -27,10 +51,7 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
 
   private elkAddress: string;
   private elkPort: number;
-  private secure: boolean;
   private areaConfigs: ElkAreaConfig[] = [];
-  private userName: string;
-  private password: string;
   private includedTasks: number[] = [];
   private includedOutputs: number[] = [];
   private zoneTypes: Record<number, ElkZone> = {};
@@ -44,6 +65,18 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
   private maxRetryDelay = 30000;
   private retryDelay = this.initialRetryDelay;
 
+/**
+ * Constructs a new instance of the platform, initializing configuration, logging, and Homebridge API references.
+ * 
+ * - Sets up area, task, output, and zone type configurations from the provided config.
+ * - Initializes garage door configurations if present.
+ * - Instantiates the Elk connection and sets up event listeners for connection, zone changes, generic messages, and errors.
+ * - Handles Homebridge's `didFinishLaunching` event to trigger connection logic.
+ * 
+ * @param log Logger instance for logging platform events.
+ * @param config Platform configuration object, including Elk connection details and accessory settings.
+ * @param api Homebridge API instance for registering services and characteristics.
+ */
   constructor(
         public readonly log: Logger,
         public readonly config: ElkPlatformConfig,
@@ -69,9 +102,6 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
         this.log.error('No areas defined in config.json.  Please define at least one area.');
       }
     }
-    this.secure = this.config.secure;
-    this.userName = this.config.userName;
-    this.password = this.config.password;
     this.includedTasks = this.config.includedTasks ?? [];
     this.includedOutputs = this.config.includedOutputs ?? [];
     if (this.config.zoneTypes) {
@@ -90,19 +120,7 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
       });
     }
 
-    const elkOptions = {
-      userName: this.userName,
-      password: this.password,
-      secure: this.secure,
-      rejectUnauthorized: false,
-      secureProtocol: 'TLSv1_method',
-    };
-
-    if (!this.secure) {
-      this.log.warn('Connection is not secure');
-    }
-        
-    this.elk = new Elk(this.elkPort, this.elkAddress,elkOptions);
+    this.elk = new Elk(this.elkPort, this.elkAddress);
         
 
     this.elk.on('connected', () => {
@@ -160,6 +178,23 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
   }
 
   
+/**
+ * Discovers and initializes devices connected to the Elk M1 panel.
+ *
+ * This method performs the following actions:
+ * - Requests the current zone status report from the Elk M1 panel.
+ * - Retrieves and adds area panels based on configured areas, including their text descriptions.
+ * - Requests and stores descriptions for all zones.
+ * - Requests and adds included tasks with their descriptions.
+ * - Requests and adds included outputs with their descriptions.
+ * - Adds configured zones that are not unconfigured and have a defined type.
+ * - Initializes the state and obstruction status for garage door accessories.
+ * - Requests the current arming status from the panel.
+ * - Handles errors by logging them, disconnecting, and attempting to reconnect.
+ *
+ * @returns {Promise<void>} A promise that resolves when device discovery and initialization is complete.
+ * @throws Will log and handle any errors encountered during the discovery process.
+ */
   async discoverDevices() {
     this.log.info('***Connected***');
     try {
@@ -254,6 +289,16 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
     }
   }
 
+/**
+ * Adds a zone accessory to the platform based on the provided zone update information.
+ *
+ * This method determines the type of the zone (e.g., contact, motion, smoke, CO, CO2, leak, garage door)
+ * and creates the appropriate accessory using the corresponding handler. For garage door zones, it checks
+ * for a matching garage door definition before adding the accessory. If the zone type is unsupported or
+ * a required definition is missing, a warning is logged.
+ *
+ * @param zone - The update information for the zone, including its ID, physical status, and logical state.
+ */
   addZone(zone: ZoneChangeUpdate) {
     const td = this.zoneTexts[zone.id];
 
@@ -298,6 +343,15 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
     }
   }
 
+/**
+ * Adds a new panel accessory or restores an existing one from cache based on the provided panel definition.
+ *
+ * This method checks if an accessory corresponding to the given panel already exists by generating a UUID
+ * from the panel's area. If the accessory exists, it restores it from cache and updates its context.
+ * Otherwise, it creates a new accessory, initializes it, and registers it with the platform.
+ *
+ * @param device - The definition of the panel to add, containing its configuration and metadata.
+ */
   addPanel(device: PanelDefinition) {
     const uuid = this.api.hap.uuid.generate(`ElkPanel${device.area}`);
     const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
@@ -316,6 +370,16 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
     }
   }
 
+/**
+ * Adds or restores an output accessory for the given Elk device.
+ *
+ * This method checks if an accessory corresponding to the provided ElkItem already exists
+ * (based on a generated UUID). If it exists, it restores the accessory from cache and updates
+ * its context. If it does not exist, it creates a new accessory, initializes it, and registers
+ * it with the platform.
+ *
+ * @param device - The ElkItem representing the output device to add or restore.
+ */
   addOutput(device: ElkItem) {
     const uuid = this.api.hap.uuid.generate(`Output${device.id}`);
     const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
@@ -334,6 +398,12 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
     }
   }
 
+/**
+ * Adds a task accessory to the platform, either by restoring an existing accessory from cache
+ * or by creating and registering a new one. Associates the provided ElkItem device with the accessory.
+ *
+ * @param device - The ElkItem device to add as a task accessory.
+ */
   addTask(device: ElkItem) {
     const uuid = this.api.hap.uuid.generate(`Task${device.id}`);
     const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
@@ -352,6 +422,16 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
     }
   }
 
+/**
+ * Adds or restores an input accessory (such as contact, motion, smoke, CO, CO2, or leak sensor) for a given Elk zone device.
+ * 
+ * If an accessory with the same UUID already exists, it restores the accessory from cache and updates its status.
+ * Otherwise, it creates a new accessory, initializes it, and registers it with the platform.
+ *
+ * @param device - The Elk zone device to associate with the accessory.
+ * @param zoneStatus - The current status update for the zone.
+ * @param inputType - The class constructor for the type of input accessory to add (e.g., ElkContact, ElkMotion, etc.).
+ */
   addInputAccessory(device: ElkZoneDevice, zoneStatus: ZoneChangeUpdate, inputType: typeof ElkContact 
     | typeof ElkMotion 
     | typeof ElkSmoke
@@ -388,6 +468,16 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
     }
   }
 
+/**
+ * Adds a garage door accessory to the platform.
+ *
+ * This method checks if an accessory for the given `ElkGarageDoorDevice` already exists.
+ * If it exists, it restores the accessory from cache and updates its context.
+ * If it does not exist, it creates a new accessory, stores the device in its context,
+ * creates the accessory handler, and registers the accessory with the platform.
+ *
+ * @param device - The ElkGarageDoorDevice to add as an accessory.
+ */
   addGarageDoor(device: ElkGarageDoorDevice) {
     device.name = (typeof device.name !== 'undefined') ? device.name :
       `Garage door ${device.id}`;
@@ -419,6 +509,13 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
     }
   }
 
+/**
+ * Attempts to establish a connection to the Elk M1 device.
+ * Logs the connection attempt and handles any errors that occur during the process.
+ *
+ * @returns {Promise<void>} A promise that resolves when the connection attempt is complete.
+ * @throws Logs an error message if the connection fails.
+ */
   async connect() {
     try {
       this.log.info('Attempting to connect to Elk M1');
