@@ -33,13 +33,36 @@
 				"default": 1,
 				"minimum": 1,
 				"maximum": 8,
-				"required": true
+				"required": false
 			},
 			"keypadCode": {
 				"title": "Keypad code",
 				"type": "integer",
-				"required": true
+				"required": false
 			},
+      "areas": {
+        "title": "Areas",
+        "type": "array",
+        "required": false,
+        "items": {
+          "title": "Area",
+          "type": "object",
+          "properties": {
+            "area": {
+              "title": "Area number",
+              "type": "integer",
+              "minimum": 1,
+				      "maximum": 8,
+              "required": true
+            },
+            "keypadCode": {
+              "title": "Keypad code",
+              "type": "string",
+              "required": true
+            }
+          }
+        }
+      },
 			"zoneTypes": {
 				"type": "array",
 				"required": true,
@@ -63,18 +86,6 @@
 									]
 								},
 								{
-									"title": "Normally closed contact",
-									"enum": [
-										"ncContact"
-									]
-								},
-								{
-									"title": "Normally open contact",
-									"enum": [
-										"noContact"
-									]
-								},
-								{
 									"title": "Garage",
 									"enum": [
 										"garage"
@@ -87,33 +98,51 @@
 									]
 								},
 								{
-									"title": "Normally closed motion",
-									"enum": [
-										"ncMotion"
-									]
-								},
-								{
-									"title": "Normally open motion",
-									"enum": [
-										"noMotion"
-									]
-								},
-								{
 									"title": "Smoke",
 									"enum": [
 										"smoke"
 									]
 								},
+                {
+                  "title": "Carbon monoxide",
+                  "enum": [
+                    "co"
+                  ]
+                },
+                {
+                  "title": "Carbon dioxide",
+                  "enum": [
+                    "co2"
+                  ]
+                },
+                {
+                  "title": "Water leak",
+                  "enum": [
+                    "leak"
+                  ]
+                }
+							]
+						},
+            "tamperType": {
+							"title": "Zone tamper type",
+							"type": "string",
+							"oneOf": [
 								{
-									"title": "Normally closed smoke",
+									"title": "None",
 									"enum": [
-										"ncSmoke"
+										"none"
 									]
 								},
 								{
-									"title": "Normally open smoke",
+									"title": "Normally closed",
 									"enum": [
-										"noSmoke"
+										"nc"
+									]
+								},
+								{
+									"title": "Normally open",
+									"enum": [
+										"no"
 									]
 								}
 							]

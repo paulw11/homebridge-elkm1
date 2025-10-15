@@ -1,3 +1,5 @@
+export * from './ElkCO';
+export * from './ElkCO2';
 export * from './ElkContact';
 export * from './ElkGarageDoor';
 export * from './ElkInput';

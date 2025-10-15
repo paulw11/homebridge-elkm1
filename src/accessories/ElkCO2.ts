@@ -3,25 +3,25 @@ import { PlatformAccessory } from 'homebridge';
 import { ElkInput } from './ElkInput';
 import { ElkM1Platform } from '../platform';
 
-export class ElkContact extends ElkInput {
+export class ElkCO2 extends ElkInput {
 
-  static INPUT_TYPE = 'Contact';
+  static INPUT_TYPE = 'CO2';
 
   protected initializeService(): void {
-    this.service = this.accessory.getService(this.platform.Service.ContactSensor) ||
-            this.accessory.addService(this.platform.Service.ContactSensor);
+    this.service = this.accessory.getService(this.platform.Service.CarbonDioxideSensor) ||
+            this.accessory.addService(this.platform.Service.CarbonDioxideSensor);
   }
 
   protected getModelName(): string {
-    return 'Contact zone';
+    return 'CO2 zone';
   }
 
   protected getContactCharacteristic() {
-    return this.platform.Characteristic.ContactSensorState;
+    return this.platform.Characteristic.CarbonDioxideDetected;
   }
 
   protected getDefaultName(): string {
-    return `Contact ${this.accessory.context.device.id}`;
+    return `CO2 ${this.accessory.context.device.id}`;
   }
 
   constructor(
@@ -32,6 +32,6 @@ export class ElkContact extends ElkInput {
   }
 
   updateContactState(state: boolean) {
-        this.service!.updateCharacteristic(this.platform.Characteristic.ContactSensorState, state);
+        this.service!.updateCharacteristic(this.platform.Characteristic.CarbonDioxideDetected, state);
   }
 }
