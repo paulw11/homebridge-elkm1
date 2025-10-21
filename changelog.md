@@ -1,6 +1,10 @@
 Changelog
 =========
 
+4.1.0
+-----
+* Use elkmon2 library for TLS support
+
 4.0.0
 -----
 * Updated in preparation for Homebridge 2.0
