@@ -1,6 +1,10 @@
 Changelog
 =========
 
+4.2.0
+-----
+* Add support for M1ZTS temperature sensor
+
 4.1.0
 -----
 * Use elkmon2 library for TLS support

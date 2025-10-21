@@ -144,6 +144,7 @@ Valid zone types are:
 | `co2`          | A Carbon Dioxide sensor                          |
 | `leak`         | A water leak sensor                              |
 | `garage`       | A zone that is used to monitor a garage door     |
+| `temperature`  | A zone that is connected to an M1ZTS sensor      |
 
 
 ### Zone tamper detection

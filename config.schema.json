@@ -114,6 +114,10 @@
                   "title": "Carbon dioxide",
                   "enum": ["co2"]
                 },
+                 {
+                  "title": "Temperature",
+                  "enum": ["temperature"]
+                },
                 {
                   "title": "Water leak",
                   "enum": ["leak"]

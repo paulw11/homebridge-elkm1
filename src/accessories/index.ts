@@ -8,3 +8,4 @@ export * from './ElkOutput';
 export * from './ElkPanel';
 export * from './ElkSmoke';
 export * from './ElkTask';
+export * from './ElkTemperature';
