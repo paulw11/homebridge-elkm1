@@ -1,40 +1,56 @@
 {
-	"pluginAlias": "ElkM1",
-	"pluginType": "platform",
-	"singular": false,
-	"schema": {
-		"type": "object",
-		"properties": {
-			"name": {
-				"title": "Name",
-				"type": "string",
-				"required": true
-			},
-			"elkAddress": {
-				"title": "ELK M1 IP Address",
-				"type": "string",
-				"format": "ipv4",
-				"required": true
-			},
-			"elkPort": {
-				"title": "Elk M1 port",
-				"type": "integer",
-				"default": 2101,
-				"required": true
-			},
-			"area": {
-				"title": "Area",
-				"type": "integer",
-				"default": 1,
-				"minimum": 1,
-				"maximum": 8,
-				"required": false
-			},
-			"keypadCode": {
-				"title": "Keypad code",
-				"type": "integer",
-				"required": false
-			},
+  "pluginAlias": "ElkM1",
+  "pluginType": "platform",
+  "singular": false,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "Name",
+        "type": "string",
+        "required": true
+      },
+      "elkAddress": {
+        "title": "ELK M1 IP Address",
+        "type": "string",
+        "format": "ipv4",
+        "required": true
+      },
+      "elkPort": {
+        "title": "Elk M1 port",
+        "type": "integer",
+        "default": 2101,
+        "required": true
+      },
+      "secure": {
+        "title": "Use secure connection (SSL/TLS)",
+        "type": "boolean",
+        "default": false,
+        "required": false
+      },
+      "userName": {
+        "title": "User name for secure mode",
+        "type": "string",
+        "required": false
+      },
+      "password": {
+        "title": "Password for secure mode",
+        "type": "string",
+        "required": false
+      },
+      "area": {
+        "title": "Area",
+        "type": "integer",
+        "default": 1,
+        "minimum": 1,
+        "maximum": 8,
+        "required": false
+      },
+      "keypadCode": {
+        "title": "Keypad code",
+        "type": "integer",
+        "required": false
+      },
       "areas": {
         "title": "Areas",
         "type": "array",
@@ -47,7 +63,7 @@
               "title": "Area number",
               "type": "integer",
               "minimum": 1,
-				      "maximum": 8,
+              "maximum": 8,
               "required": true
             },
             "keypadCode": {
@@ -58,150 +74,130 @@
           }
         }
       },
-			"zoneTypes": {
-				"type": "array",
-				"required": true,
-				"items": {
-					"title": "Zone",
-					"type": "object",
-					"properties": {
-						"zoneNumber": {
-							"title": "Zone number",
-							"type": "integer",
-							"required": true
-						},
-						"zoneType": {
-							"title": "Zone type",
-							"type": "string",
-							"oneOf": [
-								{
-									"title": "Contact",
-									"enum": [
-										"contact"
-									]
-								},
-								{
-									"title": "Garage",
-									"enum": [
-										"garage"
-									]
-								},
-								{
-									"title": "Motion",
-									"enum": [
-										"motion"
-									]
-								},
-								{
-									"title": "Smoke",
-									"enum": [
-										"smoke"
-									]
-								},
+      "zoneTypes": {
+        "type": "array",
+        "required": true,
+        "items": {
+          "title": "Zone",
+          "type": "object",
+          "properties": {
+            "zoneNumber": {
+              "title": "Zone number",
+              "type": "integer",
+              "required": true
+            },
+            "zoneType": {
+              "title": "Zone type",
+              "type": "string",
+              "oneOf": [
+                {
+                  "title": "Contact",
+                  "enum": ["contact"]
+                },
+                {
+                  "title": "Garage",
+                  "enum": ["garage"]
+                },
+                {
+                  "title": "Motion",
+                  "enum": ["motion"]
+                },
+                {
+                  "title": "Smoke",
+                  "enum": ["smoke"]
+                },
                 {
                   "title": "Carbon monoxide",
-                  "enum": [
-                    "co"
-                  ]
+                  "enum": ["co"]
                 },
                 {
                   "title": "Carbon dioxide",
-                  "enum": [
-                    "co2"
-                  ]
+                  "enum": ["co2"]
                 },
                 {
                   "title": "Water leak",
-                  "enum": [
-                    "leak"
-                  ]
+                  "enum": ["leak"]
                 }
-							]
-						},
+              ]
+            },
             "tamperType": {
-							"title": "Zone tamper type",
-							"type": "string",
-							"oneOf": [
-								{
-									"title": "None",
-									"enum": [
-										"none"
-									]
-								},
-								{
-									"title": "Normally closed",
-									"enum": [
-										"nc"
-									]
-								},
-								{
-									"title": "Normally open",
-									"enum": [
-										"no"
-									]
-								}
-							]
-						}
-					}
-				}
-			},
-			"garageDoors": {
-				"type": "array",
-				"required": false,
-				"items": {
-					"title": "Garage door",
-					"type": "object",
-					"properties": {
-						"name": {
-							"title": "Name",
-							"type": "string",
-							"required": true
-						},
-						"stateZone": {
-							"title": "State zone",
-							"type": "integer",
-							"required": true,
-							"description": "The zone that indicates whether the door is open or closed"
-						},
-						"obstructionZone": {
-							"title": "Obstruction zone",
-							"type": "integer",
-							"required": false,
-							"description": "The zone that indicates if the door is obstructed"
-						},
-						"openOutput": {
-							"title": "Open contact",
-							"type": "integer",
-							"required": true,
-							"description": "The contact (relay) that is pulsed to open the door"
-						},
-						"closeOutput": {
-							"title": "Close contact",
-							"type": "integer",
-							"required": true,
-							"description": "The contact (relay) that is pulsed to close the door"
-						}
-					}
-				}
-			},
-			"includedTasks": {
-				"title": "Included tasks",
-				"type": "array",
-				"items": {
-					"title": "Task number",
-					"type": "integer"
-				}
-			},
-			"includedOutputs": {
-				"title": "Included outputs",
-				"type": "array",
-				"items": {
-					"title": "Output number",
-					"type": "integer"
-				}
-			}
-		}
-	},
-	"form": null,
-	"display": null
+              "title": "Zone tamper type",
+              "type": "string",
+              "oneOf": [
+                {
+                  "title": "None",
+                  "enum": ["none"]
+                },
+                {
+                  "title": "Normally closed",
+                  "enum": ["nc"]
+                },
+                {
+                  "title": "Normally open",
+                  "enum": ["no"]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "garageDoors": {
+        "type": "array",
+        "required": false,
+        "items": {
+          "title": "Garage door",
+          "type": "object",
+          "properties": {
+            "name": {
+              "title": "Name",
+              "type": "string",
+              "required": true
+            },
+            "stateZone": {
+              "title": "State zone",
+              "type": "integer",
+              "required": true,
+              "description": "The zone that indicates whether the door is open or closed"
+            },
+            "obstructionZone": {
+              "title": "Obstruction zone",
+              "type": "integer",
+              "required": false,
+              "description": "The zone that indicates if the door is obstructed"
+            },
+            "openOutput": {
+              "title": "Open contact",
+              "type": "integer",
+              "required": true,
+              "description": "The contact (relay) that is pulsed to open the door"
+            },
+            "closeOutput": {
+              "title": "Close contact",
+              "type": "integer",
+              "required": true,
+              "description": "The contact (relay) that is pulsed to close the door"
+            }
+          }
+        }
+      },
+      "includedTasks": {
+        "title": "Included tasks",
+        "type": "array",
+        "items": {
+          "title": "Task number",
+          "type": "integer"
+        }
+      },
+      "includedOutputs": {
+        "title": "Included outputs",
+        "type": "array",
+        "items": {
+          "title": "Output number",
+          "type": "integer"
+        }
+      }
+    }
+  },
+  "form": null,
+  "display": null
 }

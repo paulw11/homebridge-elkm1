@@ -2,10 +2,7 @@
 
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 import { ElkM1Platform } from '../platform';
-import Elk from 'elkmon';
-import { ArmingStatusReport } from 'elkmon/dist/lib/messages';
-import { AreaReport } from 'elkmon/dist/lib/models';
-import { ArmMode } from 'elkmon/dist/lib/enums';
+import { ArmingStatusReport,AreaReport,ArmMode, Elk } from 'elkmon2';
 
 export class ElkPanel {
 

@@ -1,8 +1,8 @@
 'use strict';
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 import { ElkM1Platform } from '../platform';
-import Elk from 'elkmon';
-import { ZoneChangeUpdate } from 'elkmon/dist/lib/messages';
+import { Elk, ZoneChangeUpdate } from 'elkmon2';
+
 
 export class ElkGarageDoor {
 
