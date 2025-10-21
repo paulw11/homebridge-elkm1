@@ -11,6 +11,7 @@
 		"name": "ElkM1",
 		"elkAddress": "x.x.x.x",
 		"elkPort": 2101,
+		"secure": false,
 	    "areas":[
 			{
 				"area": 1,

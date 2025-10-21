@@ -3,8 +3,7 @@
 import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, Service, Characteristic } from 'homebridge';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
 import { ElkInput, ElkContact, ElkMotion, ElkSmoke, ElkCO, ElkCO2, ElkOutput, ElkTask, ElkPanel, ElkGarageDoor } from './accessories/index';
-import Elk from 'elkmon';
-import { PhysicalStatus } from 'elkmon/dist/lib/enums';
+import { Elk, PhysicalStatus, ZoneChangeUpdate } from 'elkmon2';
 import { ElkAreaConfig,
   ElkPlatformConfig, 
   ElkZone, 
@@ -14,7 +13,6 @@ import { ElkAreaConfig,
   PanelDefinition,
   ElkItem, 
   ElkGarageDoorDevice } from './types/types';
-import { ZoneChangeUpdate } from 'elkmon/dist/lib/messages';
 import { ElkLeak } from './accessories/ElkLeak';
 
 
@@ -65,7 +63,7 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
   private maxRetryDelay = 30000;
   private retryDelay = this.initialRetryDelay;
 
-/**
+  /**
  * Constructs a new instance of the platform, initializing configuration, logging, and Homebridge API references.
  * 
  * - Sets up area, task, output, and zone type configurations from the provided config.
@@ -120,8 +118,10 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
       });
     }
 
-    this.elk = new Elk(this.elkPort, this.elkAddress);
-        
+    const secure = this.config.secure ?? false;
+    const { userName, password } = this.config;
+
+    this.elk = new Elk(this.elkPort, this.elkAddress, { secure, userName, password });
 
     this.elk.on('connected', () => {
       this.discoverDevices();
@@ -178,7 +178,7 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
   }
 
   
-/**
+  /**
  * Discovers and initializes devices connected to the Elk M1 panel.
  *
  * This method performs the following actions:
@@ -283,13 +283,15 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
       this.log.error('Error retrieving data from M1 panel');
       if (error instanceof Error) {
         this.log.error(error.message);
+      } else {
+        this.log.error(error as string);
       }
       this.elk.disconnect();
       this.connect();
     }
   }
 
-/**
+  /**
  * Adds a zone accessory to the platform based on the provided zone update information.
  *
  * This method determines the type of the zone (e.g., contact, motion, smoke, CO, CO2, leak, garage door)
@@ -343,7 +345,7 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
     }
   }
 
-/**
+  /**
  * Adds a new panel accessory or restores an existing one from cache based on the provided panel definition.
  *
  * This method checks if an accessory corresponding to the given panel already exists by generating a UUID
@@ -370,7 +372,7 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
     }
   }
 
-/**
+  /**
  * Adds or restores an output accessory for the given Elk device.
  *
  * This method checks if an accessory corresponding to the provided ElkItem already exists
@@ -398,7 +400,7 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
     }
   }
 
-/**
+  /**
  * Adds a task accessory to the platform, either by restoring an existing accessory from cache
  * or by creating and registering a new one. Associates the provided ElkItem device with the accessory.
  *
@@ -422,7 +424,7 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
     }
   }
 
-/**
+  /**
  * Adds or restores an input accessory (such as contact, motion, smoke, CO, CO2, or leak sensor) for a given Elk zone device.
  * 
  * If an accessory with the same UUID already exists, it restores the accessory from cache and updates its status.
@@ -468,7 +470,7 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
     }
   }
 
-/**
+  /**
  * Adds a garage door accessory to the platform.
  *
  * This method checks if an accessory for the given `ElkGarageDoorDevice` already exists.
@@ -509,7 +511,7 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
     }
   }
 
-/**
+  /**
  * Attempts to establish a connection to the Elk M1 device.
  * Logs the connection attempt and handles any errors that occur during the process.
  *

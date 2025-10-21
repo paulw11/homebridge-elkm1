@@ -9,7 +9,7 @@ export class ElkLeak extends ElkInput {
 
   protected initializeService(): void {
     this.service = this.accessory.getService(this.platform.Service.LeakSensor) ||
-            this.accessory.addService(this.platform.Service.LeakSensor
+            this.accessory.addService(this.platform.Service.LeakSensor,
 
             );
   }

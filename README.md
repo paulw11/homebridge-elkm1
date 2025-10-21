@@ -21,7 +21,7 @@
 
 Most configuration items are discovered automatically, however you need to indicate zone types in the configuration file.
 
-## Changes to 4.0
+## Changes to 4.1
 
 * Updated in preparation for Homebridge 2.0
 
@@ -64,7 +64,10 @@ homebridge-elkm1 exposes a *platform* to homebridge, so you need to add it to th
             "platform": "ElkM1",
             "name": "ElkM1",
             "elkAddress": "x.x.x.x",
-            "elkPort": 2101,
+            "elkPort": 2601,
+            "secure":true,
+            "userName":"someUserName",
+            "password":"somePassword",
             "areas":[
                 {
                     "area": 1,
@@ -112,17 +115,22 @@ homebridge-elkm1 exposes a *platform* to homebridge, so you need to add it to th
     ]
 ```
 
-| **name** | **description** |
-| ---- | ----------- |
-| elkAddress | IP address or hostname of your Elk M1XEP ethernet interface |
-| elkPort | The insecure port for your M1XEP; 2101 is the default if you haven't changed it |
-| area | The area you want to control; typically 1 - Not required if you use the `areas` array |
-| keypadCode | A valid keypad code that homebridge-elkm1 can use to arm & disarm your area - Not required if you use the `areas` array|
-| areas | An array of objects, each with an `area` number and a `keypadCode` string |
-| zoneTypes | An array of zone definitions.  Each zone has a `zoneNumber`, `zoneType` and `tamperType`.|
-| garageDoors | An array of garage door objects.  Each garage door has a zone that shows the state of the door (This must be a *garage* zone type), an optional zone that indicates when the door is obstructed (This should be a `contact` zone type) a name, and two outputs; one that is pulsed to open the door and one that is pulsed to close it.  For many openers this will be the same output
-| includedTasks | The task numbers that will be added as HomeKit accessories.
-| includedOutputs | The outputs that will be added as HomeKit accessories.
+### Configuration Options
+
+| **Name**         | **Description**                                                                                                                                                                                                                                                                                                                                                 |
+|------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `elkAddress`     | IP address or hostname of your Elk M1XEP ethernet interface.                                                                                                                                                                                                                                                             |
+| `elkPort`        | The insecure port for your M1XEP; `2101` is the default if you haven't changed it.                                                                                                                                                                                                                                       |
+| `secure`         | If `true`, use a secure connection to the M1XEP. `2601` is the default secure port.                                                                                                                                                                                                                                      |
+| `userName`       | The username used to authenticate to the M1XEP if `secure` is `true`.                                                                                                                                                                                                                                                    |
+| `password`       | The password used to authenticate to the M1XEP if `secure` is `true`.                                                                                                                                                                                                                                                    |
+| `area`           | The area you want to control; typically `1`. Not required if you use the `areas` array.                                                                                                                                                                                                                                  |
+| `keypadCode`     | A valid keypad code that homebridge-elkm1 can use to arm & disarm your area. Not required if you use the `areas` array.                                                                                                                                                                                                  |
+| `areas`          | An array of objects, each with an `area` number and a `keypadCode` string.                                                                                                                                                                                                                                               |
+| `zoneTypes`      | An array of zone definitions. Each zone has a `zoneNumber`, `zoneType`, and `tamperType`.                                                                                                                                                                                                                                |
+| `garageDoors`    | An array of garage door objects. Each garage door has a zone that shows the state of the door (must be a *garage* zone type), an optional zone that indicates when the door is obstructed (should be a `contact` zone type), a name, and two outputs: one pulsed to open and one to close the door (often the same output). |
+| `includedTasks`  | The task numbers that will be added as HomeKit accessories.                                                                                                                                                                                                                                                              |
+| `includedOutputs`| The outputs that will be added as HomeKit accessories.                                                                                                                                                                                                                                                                   |
 
 ### Zone types
 Valid zone types are:
@@ -165,7 +173,3 @@ Serial Port 0 Transmit Options are set correctly using ElkRP; You need to enable
 
 ![Serial options screenshot](https://user-images.githubusercontent.com/6835876/112089001-ee322480-8be4-11eb-82a6-daa9146ee68f.png)
 
-## Secure connection
-
-The M1-XEP only supports TLS 1.0.  This is insecure and is no longer supported by modern operating systems.  It is, therefore, 
-not possible to suppot a secure connection to the M1.

@@ -1,11 +1,11 @@
-import Elk from 'elkmon';
+import { Elk } from 'elkmon2';
 import { PlatformConfig } from 'homebridge';
 export interface ElkPlatformConfig extends PlatformConfig {
     elkAddress: string;
     elkPort: number;
-    secure: boolean;
-    userName: string;
-    password: string;
+    secure?: boolean;
+    userName?: string;
+    password?: string;
     areas?: ElkAreaConfig[];
     keypadCode?: string;
     area?: number;

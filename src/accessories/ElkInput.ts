@@ -1,10 +1,32 @@
 'use strict';
 import { Service, PlatformAccessory, CharacteristicValue, Characteristic, WithUUID } from 'homebridge';
 import { ElkM1Platform } from '../platform';
-import Elk from 'elkmon';
+import { Elk,ZoneChangeUpdate } from 'elkmon2';
 import { TamperType } from '../types/types';
-import { ZoneChangeUpdate } from 'elkmon/dist/lib/messages';
 
+/**
+ * Abstract base class representing a generic input accessory for the ELK M1 platform.
+ * 
+ * This class provides the foundational logic for handling contact and tamper states,
+ * setting up accessory information, and managing Homebridge/HomeKit characteristics.
+ * Derived classes must implement methods to specify the model name, contact characteristic,
+ * default name, service initialization, and how to update the contact state.
+ * 
+ * @template Service - The Homebridge service type associated with the input.
+ * @template Characteristic - The Homebridge characteristic type for the contact state.
+ * 
+ * @remarks
+ * - The class expects the accessory context to provide an `elk` instance and a unique `id`.
+ * - Tamper handling is configurable via the `tamperType` property.
+ * - The class is designed to be extended for specific input types (e.g., zone, sensor).
+ * 
+ * @example
+ * ```typescript
+ * class ZoneInput extends ElkInput {
+ *   // Implement abstract methods for zone-specific logic
+ * }
+ * ```
+ */
 export abstract class ElkInput {
 
   static INPUT_TYPE = 'Generic Input';

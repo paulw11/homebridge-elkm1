@@ -1,7 +1,7 @@
 'use strict';
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 import { ElkM1Platform } from '../platform';
-import Elk from 'elkmon';
+import { Elk } from 'elkmon2';
 
 export class ElkOutput {
 
