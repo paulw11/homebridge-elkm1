@@ -1,6 +1,10 @@
 Changelog
 =========
 
+4.2.1
+-----
+* Fix arming of panel when going from one armed state to another
+
 4.2.0
 -----
 * Add support for M1ZTS temperature sensor
