@@ -108,14 +108,13 @@ export class ElkPanel {
     if (
       this.currentState !==
         this.platform.Characteristic.SecuritySystemCurrentState.DISARMED &&
-      value === this.platform.Characteristic.SecuritySystemTargetState.DISARM
+      value !== this.platform.Characteristic.SecuritySystemTargetState.DISARM
     ) {
       this.platform.log.debug(
         `Disarming area ${this.area} with keycode ${this.keypadCode} before re-arming`,
       );
       this.elk.arm(this.area, ArmMode.Disarm, this.keypadCode);
       await new Promise(resolve => setTimeout(resolve, this.DISARM_DELAY));
-
     }
     if (value !== this.currentState) {
       this.targetState = value as number;
