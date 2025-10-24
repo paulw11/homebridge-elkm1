@@ -12,6 +12,8 @@ export class ElkPanel {
   private currentState: number;
   private keypadCode: string;
 
+  private readonly DISARM_DELAY = 2000;
+
   constructor(
     protected readonly platform: ElkM1Platform,
     protected readonly accessory: PlatformAccessory,
@@ -112,7 +114,7 @@ export class ElkPanel {
         `Disarming area ${this.area} with keycode ${this.keypadCode} before re-arming`,
       );
       this.elk.arm(this.area, ArmMode.Disarm, this.keypadCode);
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, this.DISARM_DELAY));
 
     }
     if (value !== this.currentState) {
