@@ -139,7 +139,6 @@ export class ElkPanel {
       this.platform.log.info(`Setting area ${this.area} to ${ArmMode[elkState]}`);
       this.elk.arm(this.area, elkState, this.keypadCode);
     }
-  
   }
 
   private hkStatusFromElkStatus(area: AreaReport): number {
