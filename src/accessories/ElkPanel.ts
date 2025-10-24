@@ -2,10 +2,9 @@
 
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 import { ElkM1Platform } from '../platform';
-import { ArmingStatusReport,AreaReport,ArmMode, Elk } from 'elkmon2';
+import { ArmingStatusReport, AreaReport, ArmMode, Elk } from 'elkmon2';
 
 export class ElkPanel {
-
   private service: Service;
   private elk: Elk;
   private area: number;
@@ -14,49 +13,69 @@ export class ElkPanel {
   private keypadCode: string;
 
   constructor(
-        protected readonly platform: ElkM1Platform,
-        protected readonly accessory: PlatformAccessory,
-
+    protected readonly platform: ElkM1Platform,
+    protected readonly accessory: PlatformAccessory,
   ) {
-        this.accessory.getService(this.platform.Service.AccessoryInformation)!
-          .setCharacteristic(this.platform.Characteristic.Manufacturer, 'ELK')
-          .setCharacteristic(this.platform.Characteristic.SerialNumber, `${accessory.context.device.id}`.padStart(4, '0'));
+    this.accessory
+      .getService(this.platform.Service.AccessoryInformation)!
+      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'ELK')
+      .setCharacteristic(
+        this.platform.Characteristic.SerialNumber,
+        `${accessory.context.device.id}`.padStart(4, '0'),
+      );
 
-        const device = accessory.context.device;
+    const device = accessory.context.device;
 
-        this.elk = device.elk;
-        this.area = device.area;
-        this.keypadCode = device.keypadCode;
+    this.elk = device.elk;
+    this.area = device.area;
+    this.keypadCode = device.keypadCode;
 
-        this.targetState = this.platform.Characteristic.SecuritySystemTargetState.DISARM;
-        this.currentState = this.platform.Characteristic.SecuritySystemCurrentState.DISARMED;
+    this.targetState =
+      this.platform.Characteristic.SecuritySystemTargetState.DISARM;
+    this.currentState =
+      this.platform.Characteristic.SecuritySystemCurrentState.DISARMED;
 
-        this.service = accessory.getService(platform.Service.SecuritySystem) ||
-            accessory.addService(platform.Service.SecuritySystem);
+    this.service =
+      accessory.getService(platform.Service.SecuritySystem) ||
+      accessory.addService(platform.Service.SecuritySystem);
 
-        this.accessory.getService(this.platform.Service.AccessoryInformation)!
-          .setCharacteristic(this.platform.Characteristic.Manufacturer, 'ELK')
-          .setCharacteristic(this.platform.Characteristic.Model, 'ELK M1')
-          .setCharacteristic(this.platform.Characteristic.SerialNumber, `${device.area}`.padStart(6, '0'));
+    this.accessory
+      .getService(this.platform.Service.AccessoryInformation)!
+      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'ELK')
+      .setCharacteristic(this.platform.Characteristic.Model, 'ELK M1')
+      .setCharacteristic(
+        this.platform.Characteristic.SerialNumber,
+        `${device.area}`.padStart(6, '0'),
+      );
 
-        this.service.getCharacteristic(this.platform.Characteristic.SecuritySystemCurrentState)
-          .onGet(this.getCurrentState.bind(this));
+    this.service
+      .getCharacteristic(
+        this.platform.Characteristic.SecuritySystemCurrentState,
+      )
+      .onGet(this.getCurrentState.bind(this));
 
-        this.service.getCharacteristic(this.platform.Characteristic.SecuritySystemTargetState)
-          .onGet(this.getTargetState.bind(this))
-          .onSet(this.setTargetState.bind(this));
+    this.service
+      .getCharacteristic(this.platform.Characteristic.SecuritySystemTargetState)
+      .onGet(this.getTargetState.bind(this))
+      .onSet(this.setTargetState.bind(this));
 
-        this.elk.on('AS', (armStatusMsg:ArmingStatusReport) => {
-          const areaReport = armStatusMsg.areas[this.area - 1];
-          this.platform.log.debug(`Alarm state = ${areaReport.alarmState}`);
-          const armStatus = this.hkStatusFromElkStatus(areaReport);
+    this.elk.on('AS', (armStatusMsg: ArmingStatusReport) => {
+      const areaReport = armStatusMsg.areas[this.area - 1];
+      this.platform.log.debug(`Alarm state = ${areaReport.alarmState}`);
+      const armStatus = this.hkStatusFromElkStatus(areaReport);
 
-          this.currentState = armStatus;
-          this.service.setCharacteristic(this.platform.Characteristic.SecuritySystemCurrentState, armStatus);
-          if (armStatus !== this.platform.Characteristic.SecuritySystemCurrentState.ALARM_TRIGGERED) {
-            this.targetState = armStatus;
-          }
-        });
+      this.currentState = armStatus;
+      this.service.setCharacteristic(
+        this.platform.Characteristic.SecuritySystemCurrentState,
+        armStatus,
+      );
+      if (
+        armStatus !==
+        this.platform.Characteristic.SecuritySystemCurrentState.ALARM_TRIGGERED
+      ) {
+        this.targetState = armStatus;
+      }
+    });
   }
 
   async getCurrentState(): Promise<number> {
@@ -68,7 +87,9 @@ export class ElkPanel {
       this.currentState = armStatus;
       return armStatus;
     } catch (err) {
-      this.platform.log.error(`Caught error (${err}) trying to get current state of panel`);
+      this.platform.log.error(
+        `Caught error (${err}) trying to get current state of panel`,
+      );
     }
     return this.currentState;
   }
@@ -79,7 +100,21 @@ export class ElkPanel {
 
   async setTargetState(value: CharacteristicValue) {
     let elkState: ArmMode = ArmMode.Disarm;
-    this.platform.log.debug(`Set alarm target state = ${value}  Current state = ${this.currentState}`);
+    this.platform.log.debug(
+      `Set alarm target state = ${value}  Current state = ${this.currentState}`,
+    );
+    if (
+      this.currentState !==
+        this.platform.Characteristic.SecuritySystemCurrentState.DISARMED &&
+      value === this.platform.Characteristic.SecuritySystemTargetState.DISARM
+    ) {
+      this.platform.log.debug(
+        `Disarming area ${this.area} with keycode ${this.keypadCode} before re-arming`,
+      );
+      this.elk.arm(this.area, ArmMode.Disarm, this.keypadCode);
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+    }
     if (value !== this.currentState) {
       this.targetState = value as number;
       switch (value) {
@@ -96,34 +131,43 @@ export class ElkPanel {
         elkState = ArmMode.Disarm;
         break;
       }
-      this.platform.log.debug(`Arming area ${this.area} to ${elkState} keycode ${this.keypadCode}`);
+      this.platform.log.debug(
+        `Arming area ${this.area} to ${elkState} keycode ${this.keypadCode}`,
+      );
+      this.platform.log.info(`Setting area ${this.area} to ${ArmMode[elkState]}`);
       this.elk.arm(this.area, elkState, this.keypadCode);
     }
-    return value;
+  
   }
 
   private hkStatusFromElkStatus(area: AreaReport): number {
-    let armStatus: number = this.platform.Characteristic.SecuritySystemCurrentState.DISARMED;
+    let armStatus: number =
+      this.platform.Characteristic.SecuritySystemCurrentState.DISARMED;
     if (area.alarmState === 'No Alarm Active') {
       switch (area.armStatus) {
       case 'Disarmed':
-        armStatus = this.platform.Characteristic.SecuritySystemCurrentState.DISARMED;
+        armStatus =
+            this.platform.Characteristic.SecuritySystemCurrentState.DISARMED;
         break;
       case 'Armed Away':
       case 'Armed Vacation':
-        armStatus = this.platform.Characteristic.SecuritySystemCurrentState.AWAY_ARM;
+        armStatus =
+            this.platform.Characteristic.SecuritySystemCurrentState.AWAY_ARM;
         break;
       case 'Armed Stay':
       case 'Armed Stay Instant':
-        armStatus = this.platform.Characteristic.SecuritySystemCurrentState.STAY_ARM;
+        armStatus =
+            this.platform.Characteristic.SecuritySystemCurrentState.STAY_ARM;
         break;
       case 'Armed Night':
       case 'Armed Night Instant':
-        armStatus = this.platform.Characteristic.SecuritySystemCurrentState.NIGHT_ARM;
+        armStatus =
+            this.platform.Characteristic.SecuritySystemCurrentState.NIGHT_ARM;
         break;
       }
     } else {
-      armStatus = this.platform.Characteristic.SecuritySystemCurrentState.ALARM_TRIGGERED;
+      armStatus =
+        this.platform.Characteristic.SecuritySystemCurrentState.ALARM_TRIGGERED;
     }
     return armStatus;
   }
