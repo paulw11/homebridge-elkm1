@@ -1,6 +1,10 @@
 Changelog
 =========
 
+4.2.2
+-----
+* Add connecting state tracking
+
 4.2.1
 -----
 * Fix arming of panel when going from one armed state to another
