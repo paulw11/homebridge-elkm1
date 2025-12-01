@@ -1,6 +1,10 @@
 Changelog
 =========
 
+4.2.3
+-----
+* Clear connecting state on error
+
 4.2.2
 -----
 * Add connecting state tracking
