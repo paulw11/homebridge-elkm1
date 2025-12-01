@@ -181,6 +181,7 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
 
     this.elk.on('error', (err) => {
       this.connected = false;
+      this.connecting = false;
       this.log.error(
         `Error connecting to ElkM1 ${err}. Will retry in ${
           this.retryDelay / 1000
