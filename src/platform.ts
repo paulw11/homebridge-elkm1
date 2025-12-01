@@ -83,6 +83,8 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
   private maxRetryDelay = 30000;
   private retryDelay = this.initialRetryDelay;
   private hasTemperatureZone = false;
+  private connecting = false;
+  private connected = false;
 
   /**
    * Constructs a new instance of the platform, initializing configuration, logging, and Homebridge API references.
@@ -153,6 +155,8 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
     });
 
     this.elk.on('connected', () => {
+      this.connecting = false;
+      this.connected = true;
       this.discoverDevices();
       this.retryDelay = this.initialRetryDelay;
     });
@@ -176,6 +180,7 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
     });
 
     this.elk.on('error', (err) => {
+      this.connected = false;
       this.log.error(
         `Error connecting to ElkM1 ${err}. Will retry in ${
           this.retryDelay / 1000
@@ -665,11 +670,18 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
    * @throws Logs an error message if the connection fails.
    */
   async connect() {
+    if (this.connecting) {
+      this.log.debug('Already attempting to connect to Elk M1');
+      return;
+    }
+    this.connecting = true;
     try {
       this.log.info('Attempting to connect to Elk M1');
       this.elk.connect();
     } catch (err) {
       this.log.error(`Caught ${err} during connect`);
+      this.connecting = false;
     }
+
   }
 }
