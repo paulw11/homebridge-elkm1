@@ -672,10 +672,10 @@ export class ElkM1Platform implements DynamicPlatformPlugin {
    */
   async connect() {
     if (this.connecting) {
-      this.log.debug('Already attempting to connect to Elk M1');
+      this.log.info('Already attempting to connect to Elk M1');
       return;
     }
-    this.connecting = true;
+    // this.connecting = true;
     try {
       this.log.info('Attempting to connect to Elk M1');
       this.elk.connect();
